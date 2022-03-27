@@ -18,7 +18,6 @@ objectID,constituentID,displayOrder,roleType,role
 62,1951,2,artist,related artist
 78,1369,1,artist,artist
 80,1822,1,artist,painter
-80,1822,3,artist,related artist
 80,8351,2,artist,painter
 82,1822,1,artist,artist
 84,1822,1,artist,artist
@@ -51,7 +50,6 @@ objectID,constituentID,displayOrder,roleType,role
 1182,1735,1,artist,artist
 1180,1506,1,artist,artist
 1181,1507,1,artist,painter
-1181,1507,3,artist,related artist
 1181,3671,4,artist,painter
 1185,1744,1,artist,artist
 1194,1808,1,artist,artist
@@ -92,10 +90,8 @@ objectID,constituentID,displayOrder,roleType,role
 46099,1942,1,artist,painter
 46113,1212,1,artist,painter
 46146,1952,1,artist,painter
-46146,1952,2,artist,related artist
 46146,37351,3,artist,painter
 46147,1952,1,artist,painter
-46147,1952,2,artist,related artist
 46147,49428,3,artist,painter
 46149,1967,1,artist,artist
 46174,1370,1,artist,artist
@@ -1681,7 +1677,6 @@ objectID,constituentID,displayOrder,roleType,role
 288,1495,1,artist,artist
 293,1497,1,artist,artist
 294,963,1,artist,painter
-294,963,3,artist,related artist
 294,8293,2,artist,painter
 398,462,1,artist,artist
 296,1340,1,artist,painter
@@ -1725,7 +1720,6 @@ objectID,constituentID,displayOrder,roleType,role
 414,1989,1,artist,artist
 417,1857,1,artist,artist
 422,1489,1,artist,painter
-422,1489,3,artist,related artist
 422,8293,2,artist,artist
 423,13,1,artist,painter
 423,1778,2,artist,related artist
@@ -1796,7 +1790,6 @@ objectID,constituentID,displayOrder,roleType,role
 1140,954,1,artist,artist
 1141,8294,1,artist,painter
 1155,1211,1,artist,painter
-1155,1211,3,artist,related artist
 1155,49424,2,artist,painter
 1142,984,1,artist,artist
 1192,1804,1,artist,artist
@@ -1806,10 +1799,8 @@ objectID,constituentID,displayOrder,roleType,role
 1151,6684,1,artist,painter
 1153,1202,1,artist,artist
 1154,1211,1,artist,painter
-1154,1211,3,artist,related artist
 1154,49424,2,artist,painter
 1156,1211,1,artist,painter
-1156,1211,3,artist,related artist
 1156,49424,2,artist,painter
 1171,1398,1,artist,artist
 1157,1219,1,artist,artist
@@ -1878,7 +1869,6 @@ objectID,constituentID,displayOrder,roleType,role
 12157,1497,1,artist,artist
 12158,1497,1,artist,artist
 12207,1847,1,artist,painter
-12207,1847,2,artist,related artist
 12139,2099,1,artist,painter
 12143,10790,1,artist,painter
 12147,1237,1,artist,artist
@@ -1939,7 +1929,6 @@ objectID,constituentID,displayOrder,roleType,role
 33255,976,1,artist,artist
 33745,1316,1,artist,artist
 33757,1929,1,artist,painter
-33757,1929,3,artist,related artist
 33757,8310,2,artist,painter
 33746,1316,1,artist,artist
 33747,13,1,artist,painter
@@ -2056,11 +2045,9 @@ objectID,constituentID,displayOrder,roleType,role
 41592,1732,1,artist,artist
 41594,13,3,artist,painter
 41594,1932,2,artist,related artist
-41594,1932,4,artist,related artist
 41594,8310,1,artist,painter
 41596,13,2,artist,painter
 41596,1702,1,artist,painter
-41596,1702,3,artist,related artist
 41597,1702,1,artist,painter
 41616,1184,1,artist,artist
 41601,2441,2,artist,painter
@@ -2120,7 +2107,6 @@ objectID,constituentID,displayOrder,roleType,role
 41668,954,1,artist,artist
 41670,954,1,artist,artist
 41697,1952,1,artist,painter
-41697,1952,3,artist,related artist
 41697,8310,2,artist,painter
 41657,1145,1,artist,painter
 41658,2828,1,artist,painter
@@ -2167,7 +2153,6 @@ objectID,constituentID,displayOrder,roleType,role
 41701,1488,1,artist,painter
 41702,38614,1,artist,painter
 41703,1993,1,artist,painter
-41703,1993,3,artist,related artist
 41703,14215,2,artist,painter
 42284,1506,1,artist,artist
 42285,1733,1,artist,painter
@@ -2321,11 +2306,9 @@ objectID,constituentID,displayOrder,roleType,role
 43720,1259,1,artist,artist
 43721,1847,1,artist,artist
 43722,1932,1,artist,painter
-43722,1932,3,artist,related artist
 43722,8310,2,artist,painter
 43724,1859,1,artist,artist
 43725,1932,1,artist,painter
-43725,1932,3,artist,related artist
 43725,8310,2,artist,painter
 46132,1853,1,artist,artist
 45641,1118,1,artist,artist
@@ -2393,7 +2376,6 @@ objectID,constituentID,displayOrder,roleType,role
 46426,1413,1,artist,artist
 45890,1440,1,artist,artist
 45891,1952,1,artist,painter
-45891,1952,3,artist,related artist
 45891,8310,2,artist,painter
 46694,1935,1,artist,artist
 45955,1425,1,artist,painter
@@ -2502,17 +2484,13 @@ objectID,constituentID,displayOrder,roleType,role
 46173,1353,1,artist,artist
 46150,13,2,artist,painter
 46150,1989,1,artist,painter
-46150,1989,3,artist,related artist
 46151,1959,1,artist,painter
 46152,1080,1,artist,artist
 46160,1959,1,artist,painter
-46160,1959,2,artist,related artist
 46161,323,1,artist,artist
 46162,939,1,artist,painter
-46162,939,3,artist,related artist
 46162,8333,2,artist,painter
 46163,939,1,artist,painter
-46163,939,3,artist,related artist
 46163,8333,2,artist,painter
 46164,1004,1,artist,painter
 46165,13,1,artist,painter
@@ -3661,7 +3639,6 @@ objectID,constituentID,displayOrder,roleType,role
 195497,1398,1,artist,painter
 195502,42649,1,artist,painter
 195505,2790,1,artist,painter
-195505,2790,2,artist,related artist
 195506,42652,1,artist,painter
 195513,1919,1,artist,painter
 195567,25819,1,artist,painter
@@ -3762,7 +3739,6 @@ objectID,constituentID,displayOrder,roleType,role
 576,1202,1,artist,artist
 568,1911,1,artist,painter
 572,1822,1,artist,painter
-572,1822,3,artist,related artist
 572,2502,4,artist,painter
 572,8351,2,artist,artist
 994,1127,1,artist,painter
@@ -3783,7 +3759,6 @@ objectID,constituentID,displayOrder,roleType,role
 1196,1818,1,artist,artist
 1198,13,2,artist,painter
 1198,1822,1,artist,painter
-1198,1822,3,artist,related artist
 1200,1822,2,artist,related artist
 1200,8351,1,artist,painter
 1200,12798,3,artist,painter
@@ -3794,7 +3769,6 @@ objectID,constituentID,displayOrder,roleType,role
 1211,1823,1,artist,artist
 1220,1901,1,artist,artist
 1223,1932,1,artist,painter
-1223,1932,3,artist,related artist
 1223,8310,2,artist,painter
 1224,1939,1,artist,artist
 1236,1951,1,artist,artist
@@ -34859,7 +34833,6 @@ objectID,constituentID,displayOrder,roleType,role
 111605,2686,2,artist,related artist
 111605,2831,1,artist,artist
 111606,1832,1,artist,artist
-111606,1832,2,artist,related artist
 111607,2728,1,artist,artist
 111608,2728,1,artist,artist
 111609,2728,1,artist,artist
@@ -36783,21 +36756,14 @@ objectID,constituentID,displayOrder,roleType,role
 214108,49078,1,artist,artist
 214109,23922,1,artist,artist
 220552,8286,1,artist,artist
-220552,8286,6,artist,artist
 220553,8286,1,artist,artist
-220553,8286,6,artist,artist
 220555,8286,1,artist,artist
-220555,8286,6,artist,artist
 220556,8286,1,artist,artist
-220556,8286,6,artist,artist
 220557,8286,1,artist,artist
-220557,8286,6,artist,artist
 220558,8286,2,artist,artist
 220558,32787,1,artist,artist
 220559,8286,1,artist,artist
-220559,8286,6,artist,artist
 220560,8286,1,artist,artist
-220560,8286,6,artist,artist
 216065,2835,1,artist,artist
 216066,2835,1,artist,artist
 216067,2835,1,artist,artist
@@ -36820,7 +36786,6 @@ objectID,constituentID,displayOrder,roleType,role
 216104,2835,1,artist,artist
 216105,2835,1,artist,artist
 220551,8286,1,artist,artist
-220551,8286,6,artist,artist
 216106,2835,1,artist,artist
 216107,2835,1,artist,artist
 216108,2835,1,artist,artist
@@ -36849,15 +36814,10 @@ objectID,constituentID,displayOrder,roleType,role
 220545,8286,2,artist,artist
 220545,32787,1,artist,artist
 220546,8286,1,artist,artist
-220546,8286,6,artist,artist
 220547,8286,1,artist,artist
-220547,8286,6,artist,artist
 220548,8286,1,artist,artist
-220548,8286,2,artist,artist
 220549,8286,1,artist,artist
-220549,8286,6,artist,artist
 220550,8286,1,artist,artist
-220550,8286,6,artist,artist
 46299,1820,1,artist,artist
 11502,970,1,artist,artist
 46491,1219,1,artist,artist
@@ -37969,41 +37929,32 @@ objectID,constituentID,displayOrder,roleType,role
 6489,34877,2,artist,printer
 6490,3875,1,artist,artist
 6527,3906,1,artist,artist
-6527,3906,3,artist,printer
 6527,7085,2,artist,artist
 6527,10793,4,artist,printer
 6559,3957,1,artist,artist
 6528,3906,1,artist,artist
-6528,3906,3,artist,printer
 6528,7085,2,artist,artist
 6528,10793,4,artist,printer
 6529,3906,2,artist,artist
-6529,3906,4,artist,printer
 6529,7085,1,artist,artist
 6529,10793,3,artist,printer
 6530,3906,1,artist,artist
-6530,3906,3,artist,printer
 6530,7085,2,artist,artist
 6530,10793,4,artist,printer
 6532,3906,1,artist,artist
-6532,3906,4,artist,printer
 6532,7085,2,artist,artist
 6532,10793,3,artist,printer
 6533,3906,1,artist,artist
-6533,3906,3,artist,printer
 6533,7085,2,artist,artist
 6533,10793,4,artist,printer
 6534,3906,1,artist,artist
-6534,3906,4,artist,printer
 6534,7085,2,artist,artist
 6534,10793,3,artist,printer
 6535,3906,1,artist,artist
-6535,3906,3,artist,printer
 6535,7085,2,artist,artist
 6535,10793,4,artist,printer
 8035,1421,1,artist,artist
 6539,3906,1,artist,artist
-6539,3906,3,artist,printer
 6539,7085,2,artist,artist
 6539,10793,4,artist,printer
 6541,2477,1,artist,artist
@@ -39921,7 +39872,6 @@ objectID,constituentID,displayOrder,roleType,role
 34886,48016,3,artist,publisher
 34886,48033,2,artist,printer
 34887,5076,1,artist,artist
-34887,5076,2,artist,printer
 34887,47827,3,artist,publisher
 48693,3017,1,artist,artist
 34900,1783,1,artist,artist
@@ -41438,7 +41388,6 @@ objectID,constituentID,displayOrder,roleType,role
 47139,2136,1,artist,artist
 47139,11206,4,artist,printer
 47139,26353,2,artist,publisher
-47139,26353,3,artist,printer
 47140,4465,1,artist,artist
 47141,4469,1,artist,artist
 47143,2586,1,artist,artist
@@ -41997,7 +41946,6 @@ objectID,constituentID,displayOrder,roleType,role
 49144,1881,1,artist,artist
 49145,1881,1,artist,artist
 49146,1881,1,artist,artist
-49146,1881,3,artist,printer
 49146,5392,2,artist,printer
 49147,1881,1,artist,artist
 49148,1881,1,artist,artist
@@ -44528,16 +44476,12 @@ objectID,constituentID,displayOrder,roleType,role
 58496,4291,1,artist,artist
 58497,4291,1,artist,artist
 58498,4292,1,artist,artist
-58498,4292,3,artist,publisher
 58498,37630,2,artist,printer
 58499,4292,1,artist,artist
-58499,4292,3,artist,publisher
 58499,37630,2,artist,printer
 58500,4292,1,artist,artist
-58500,4292,3,artist,publisher
 58500,37630,2,artist,printer
 58501,4292,1,artist,artist
-58501,4292,3,artist,publisher
 58501,37630,2,artist,printer
 58502,4293,1,artist,artist
 58504,4293,1,artist,artist
@@ -54063,15 +54007,10 @@ objectID,constituentID,displayOrder,roleType,role
 110349,4475,1,artist,artist
 110350,4475,1,artist,artist
 110351,4475,1,artist,artist
-110351,4475,2,artist,printer
 110352,4475,1,artist,artist
-110352,4475,2,artist,printer
 110353,4475,1,artist,artist
-110353,4475,2,artist,printer
 110354,4475,1,artist,artist
-110354,4475,2,artist,printer
 110355,4475,1,artist,artist
-110355,4475,2,artist,printer
 110356,4475,1,artist,artist
 110357,4475,1,artist,artist
 110358,4475,1,artist,artist
@@ -56738,7 +56677,6 @@ objectID,constituentID,displayOrder,roleType,role
 132630,2136,1,artist,artist
 132630,11207,3,artist,printer
 132630,26353,4,artist,artist
-132630,26353,5,artist,publisher
 132630,26507,2,artist,printer
 132631,2136,1,artist,artist
 132631,11207,2,artist,printer
@@ -61310,7 +61248,6 @@ objectID,constituentID,displayOrder,roleType,role
 144422,26007,2,artist,printer
 144423,6941,1,artist,artist
 144423,26449,2,artist,processing and proofing
-144423,26449,3,artist,printer
 146592,33735,1,artist,artist
 145127,33877,1,artist,artist
 196735,1209,1,artist,artist
@@ -61719,7 +61656,6 @@ objectID,constituentID,displayOrder,roleType,role
 145215,33143,1,artist,artist
 145216,33304,1,artist,artist
 145217,5076,1,artist,artist
-145217,5076,2,artist,printer
 145217,47827,3,artist,publisher
 145218,5105,1,artist,artist
 145219,35063,1,artist,artist
@@ -64692,7 +64628,6 @@ objectID,constituentID,displayOrder,roleType,role
 148556,33691,1,artist,artist
 148557,33691,1,artist,artist
 148558,4488,1,artist,artist
-148558,4488,2,artist,printer
 148559,10445,1,artist,artist
 148560,2891,1,artist,artist
 148561,33921,1,artist,artist
@@ -65416,7 +65351,6 @@ objectID,constituentID,displayOrder,roleType,role
 149280,33957,1,artist,artist
 149281,33964,1,artist,artist
 149282,5456,1,artist,artist
-149282,5456,2,artist,printer
 149283,33966,1,artist,artist
 149285,33974,1,artist,artist
 149286,2994,1,artist,artist
@@ -65890,12 +65824,10 @@ objectID,constituentID,displayOrder,roleType,role
 151410,19937,2,artist,printer
 151410,23848,3,artist,artist
 151411,2136,1,artist,artist
-151411,2136,2,artist,publisher
 151411,15465,5,artist,printer
 151411,25034,4,artist,printer
 151411,35023,3,artist,publisher
 151412,2136,1,artist,artist
-151412,2136,2,artist,publisher
 151412,15465,5,artist,printer
 151412,25034,4,artist,printer
 151412,35023,3,artist,printer
@@ -67405,28 +67337,20 @@ objectID,constituentID,displayOrder,roleType,role
 153397,27961,1,artist,artist
 153397,35262,3,artist,printer
 153453,9733,1,artist,artist
-153453,9733,2,artist,author
 153453,35274,3,artist,publisher
 153449,9733,1,artist,artist
-153449,9733,2,artist,author
 153449,35274,3,artist,publisher
 153450,9733,1,artist,artist
-153450,9733,2,artist,author
 153450,35274,3,artist,publisher
 153451,9733,1,artist,artist
-153451,9733,2,artist,author
 153451,35274,3,artist,publisher
 153452,9733,1,artist,artist
-153452,9733,2,artist,author
 153452,35274,3,artist,publisher
 153454,9733,1,artist,artist
-153454,9733,2,artist,author
 153454,35274,3,artist,publisher
 153455,9733,1,artist,artist
-153455,9733,2,artist,author
 153455,35274,3,artist,publisher
 153456,9733,1,artist,artist
-153456,9733,2,artist,author
 153456,35274,3,artist,publisher
 153534,35294,1,artist,artist
 153536,5698,1,artist,artist
@@ -69560,7 +69484,6 @@ objectID,constituentID,displayOrder,roleType,role
 172490,29748,1,artist,artist
 172484,1209,1,artist,artist
 172519,1843,2,artist,printer
-172519,1843,3,artist,publisher
 172519,4711,1,artist,artist
 172547,40671,1,artist,artist
 172547,48211,2,artist,publisher
@@ -69994,7 +69917,6 @@ objectID,constituentID,displayOrder,roleType,role
 182467,3683,1,artist,artist
 182468,3683,1,artist,artist
 182470,3683,1,artist,artist
-182470,3683,2,artist,printer
 182470,47758,3,artist,publisher
 182474,3722,1,artist,artist
 182474,48006,2,artist,publisher
@@ -70013,7 +69935,6 @@ objectID,constituentID,displayOrder,roleType,role
 182505,47663,2,artist,printer
 182507,3807,1,artist,artist
 182512,6494,1,artist,printer
-182512,6494,2,artist,publisher
 182518,33330,1,artist,artist
 182519,42249,1,artist,artist
 182520,39791,1,artist,artist
@@ -72222,7 +72143,6 @@ objectID,constituentID,displayOrder,roleType,role
 213161,49052,2,artist,publisher
 213162,14772,4,artist,artist
 213162,48869,1,artist,artist
-213162,48869,5,artist,publisher
 213162,49089,2,artist,artist
 213162,49090,3,artist,artist
 213180,10543,2,artist,artist
@@ -72249,7 +72169,6 @@ objectID,constituentID,displayOrder,roleType,role
 213186,47795,4,artist,artist after
 213186,50250,2,artist,artist after
 213186,50251,3,artist,artist after
-213186,50251,7,artist,artist after
 213186,50252,5,artist,artist after
 213201,1096,2,artist,artist after
 213201,2706,3,artist,artist
@@ -72883,7 +72802,6 @@ objectID,constituentID,displayOrder,roleType,role
 218980,5423,1,artist,artist
 218980,50156,2,artist,artist after
 218981,5423,1,artist,artist
-218981,5423,3,artist,publisher
 218981,22711,2,artist,artist after
 218993,50165,1,artist,artist
 218993,51265,2,artist,printer
@@ -72930,7 +72848,6 @@ objectID,constituentID,displayOrder,roleType,role
 219335,2136,1,artist,artist
 219335,26353,2,artist,publisher
 219339,1843,2,artist,publisher
-219339,1843,3,artist,printer
 219339,5836,4,artist,workshop printer
 219339,11211,6,artist,workshop printer
 219339,19115,5,artist,workshop printer
@@ -73020,7 +72937,6 @@ objectID,constituentID,displayOrder,roleType,role
 6900,1315,1,artist,artist
 220378,1818,2,artist,artist after
 220378,6852,1,artist,artist
-220378,6852,3,artist,publisher
 948,1927,1,artist,artist
 220348,25515,1,artist,artist
 220349,2426,1,artist,artist
@@ -73271,25 +73187,18 @@ objectID,constituentID,displayOrder,roleType,role
 749,1080,1,artist,artist
 750,1080,1,artist,artist
 222827,6779,2,artist,publisher
-222827,6779,3,artist,printer
 222827,51620,1,artist,artist
 222828,6779,2,artist,publisher
-222828,6779,3,artist,printer
 222828,51620,1,artist,artist
 222829,6779,2,artist,publisher
-222829,6779,3,artist,printer
 222829,51620,1,artist,artist
 222830,6779,2,artist,publisher
-222830,6779,3,artist,printer
 222830,51620,1,artist,artist
 222831,6779,2,artist,publisher
-222831,6779,3,artist,printer
 222831,51620,1,artist,artist
 222832,6779,2,artist,publisher
-222832,6779,3,artist,printer
 222832,51620,1,artist,artist
 222841,6779,2,artist,publisher
-222841,6779,3,artist,printer
 222841,51626,1,artist,artist
 4283,2367,1,artist,artist
 777,1080,1,artist,artist
@@ -73320,10 +73229,8 @@ objectID,constituentID,displayOrder,roleType,role
 223179,3267,1,artist,artist
 223179,10092,5,artist,collaborator
 223179,20473,2,artist,collaborator
-223179,20473,7,artist,publisher
 223383,2881,1,artist,artist
 223448,33010,3,artist,publisher
-223448,33010,4,artist,printer
 223448,44047,1,artist,artist
 223448,46194,2,artist,publisher
 223582,20747,1,artist,artist
@@ -76664,19 +76571,15 @@ objectID,constituentID,displayOrder,roleType,role
 6526,1718,2,artist,artist after
 6526,3898,1,artist,artist
 6531,3906,2,artist,artist
-6531,3906,3,artist,printer
 6531,7085,1,artist,artist
 6531,10793,4,artist,printer
 6536,3906,2,artist,artist
-6536,3906,4,artist,printer
 6536,7085,1,artist,artist
 6536,10793,3,artist,printer
 6537,3906,2,artist,artist
-6537,3906,4,artist,printer
 6537,7085,1,artist,artist
 6537,10793,3,artist,printer
 6538,3906,2,artist,artist
-6538,3906,4,artist,printer
 6538,7085,1,artist,artist
 6538,10793,3,artist,printer
 6540,3100,1,artist,artist
@@ -78883,13 +78786,9 @@ objectID,constituentID,displayOrder,roleType,role
 9870,1822,1,artist,artist
 9871,1822,1,artist,artist
 9872,1822,1,artist,artist
-9872,1822,2,artist,related artist
 9873,1822,1,artist,artist
-9873,1822,2,artist,related artist
 9874,1822,1,artist,artist
-9874,1822,2,artist,related artist
 9875,1822,1,artist,artist
-9875,1822,2,artist,related artist
 10085,2678,1,artist,artist
 9876,1822,2,artist,related artist
 9876,8351,1,artist,artist
@@ -78913,7 +78812,6 @@ objectID,constituentID,displayOrder,roleType,role
 9894,1822,1,artist,artist
 9895,1822,1,artist,artist
 9896,1822,1,artist,artist
-9896,1822,2,artist,related artist
 9896,2627,3,artist,artist after
 9898,1822,1,artist,artist
 9899,1822,1,artist,artist
@@ -79055,7 +78953,6 @@ objectID,constituentID,displayOrder,roleType,role
 10042,1822,1,artist,artist
 10043,1822,1,artist,artist
 10044,1822,1,artist,artist
-10044,1822,2,artist,related artist
 10045,1822,1,artist,artist
 10046,1822,1,artist,artist
 10047,1822,1,artist,artist
@@ -80838,7 +80735,6 @@ objectID,constituentID,displayOrder,roleType,role
 30475,1791,1,artist,artist
 30476,5265,1,artist,artist
 30477,1822,1,artist,artist
-30477,1822,3,artist,related artist
 30477,2627,4,artist,artist after
 30477,8351,2,artist,artist
 30478,3016,1,artist,artist
@@ -80928,7 +80824,6 @@ objectID,constituentID,displayOrder,roleType,role
 30634,2534,1,artist,artist
 30635,5015,1,artist,artist
 30636,1822,1,artist,artist
-30636,1822,3,artist,related artist
 30636,2627,4,artist,artist after
 30636,8351,2,artist,artist
 30637,2736,1,artist,artist
@@ -82139,7 +82034,6 @@ objectID,constituentID,displayOrder,roleType,role
 33059,1929,4,artist,artist after
 33059,1932,3,artist,artist after
 33059,1952,2,artist,artist after
-33059,1952,5,artist,artist after
 33059,4432,1,artist,artist
 48272,4438,1,artist,artist
 33130,2677,1,artist,artist
@@ -82377,7 +82271,6 @@ objectID,constituentID,displayOrder,roleType,role
 33410,1791,1,artist,artist
 33578,1209,1,artist,artist
 33443,996,2,artist,artist after
-33443,996,4,artist,artist after
 33443,2440,9,artist,artist
 33443,3299,5,artist,artist
 33443,3361,7,artist,artist
@@ -83552,16 +83445,12 @@ objectID,constituentID,displayOrder,roleType,role
 36877,2414,1,artist,artist
 36878,2414,1,artist,artist
 36879,2414,1,artist,artist
-36879,2414,3,artist,related artist
 36879,2830,2,artist,artist
 36880,2414,1,artist,artist
-36880,2414,3,artist,related artist
 36880,2830,2,artist,artist
 36881,2414,1,artist,artist
-36881,2414,3,artist,related artist
 36881,2830,2,artist,artist
 36882,2414,2,artist,artist
-36882,2414,3,artist,related artist
 36882,2830,1,artist,artist
 36883,2414,1,artist,artist
 36884,2414,1,artist,artist
@@ -83810,7 +83699,6 @@ objectID,constituentID,displayOrder,roleType,role
 37150,1822,1,artist,artist
 37151,1822,1,artist,artist
 37152,1822,2,artist,artist
-37152,1822,3,artist,related artist
 37152,2627,4,artist,artist after
 37152,8351,1,artist,artist
 37153,1822,1,artist,artist
@@ -84125,41 +84013,29 @@ objectID,constituentID,displayOrder,roleType,role
 39194,3284,1,artist,artist
 39195,3284,1,artist,artist
 39200,1960,2,artist,artist
-39200,1960,3,artist,printer
 39200,7085,1,artist,artist
 39201,1960,1,artist,artist
-39201,1960,3,artist,printer
 39201,7085,2,artist,artist
 39202,1960,2,artist,artist
-39202,1960,3,artist,printer
 39202,7085,1,artist,artist
 39203,1960,2,artist,artist
-39203,1960,3,artist,printer
 39203,7085,1,artist,artist
 39204,1960,2,artist,artist
-39204,1960,3,artist,printer
 39204,7085,1,artist,artist
 39205,1960,1,artist,artist
-39205,1960,3,artist,printer
 39205,7085,2,artist,artist
 39206,1960,2,artist,artist
-39206,1960,3,artist,printer
 39206,7085,1,artist,artist
 39207,1960,2,artist,artist
-39207,1960,3,artist,printer
 39207,7085,1,artist,artist
 39208,1960,1,artist,artist
-39208,1960,3,artist,printer
 39208,7085,2,artist,artist
 39209,1960,1,artist,artist
 39220,1960,2,artist,artist
-39220,1960,3,artist,printer
 39220,7085,1,artist,artist
 39221,1960,2,artist,artist
-39221,1960,3,artist,printer
 39221,7085,1,artist,artist
 39222,1960,2,artist,artist
-39222,1960,3,artist,printer
 39222,7085,1,artist,artist
 39227,1219,1,artist,artist
 39319,1353,1,artist,artist
@@ -84493,7 +84369,6 @@ objectID,constituentID,displayOrder,roleType,role
 40272,1822,1,artist,artist
 40071,2444,1,artist,artist
 40275,1822,1,artist,artist
-40275,1822,3,artist,related artist
 40275,2627,4,artist,artist after
 40275,8351,2,artist,artist
 41352,1209,1,artist,artist
@@ -86061,7 +85936,6 @@ objectID,constituentID,displayOrder,roleType,role
 46730,1107,1,artist,artist
 47624,1031,2,artist,artist after
 47624,4160,1,artist,artist
-47624,4160,3,artist,publisher
 47625,1031,2,artist,artist after
 47625,4344,1,artist,artist
 47625,5950,3,artist,publisher
@@ -86945,25 +86819,18 @@ objectID,constituentID,displayOrder,roleType,role
 48743,29225,1,artist,artist
 48744,2765,2,artist,artist after
 48744,4160,1,artist,artist
-48744,4160,3,artist,publisher
 48745,2765,2,artist,artist after
 48745,4160,1,artist,artist
-48745,4160,3,artist,publisher
 48746,2765,2,artist,artist after
 48746,4160,1,artist,artist
-48746,4160,3,artist,publisher
 48747,2765,2,artist,artist after
 48747,4160,1,artist,artist
-48747,4160,3,artist,publisher
 48748,2765,2,artist,artist after
 48748,4160,1,artist,artist
-48748,4160,3,artist,publisher
 48749,2765,2,artist,artist after
 48749,4160,1,artist,artist
-48749,4160,3,artist,publisher
 48750,2765,2,artist,artist after
 48750,4160,1,artist,artist
-48750,4160,3,artist,publisher
 48780,3177,1,artist,artist
 48792,1927,2,artist,artist after
 48792,2776,1,artist,artist
@@ -88827,7 +88694,6 @@ objectID,constituentID,displayOrder,roleType,role
 53487,4279,1,artist,artist
 53488,4553,1,artist,artist
 53489,1822,2,artist,artist
-53489,1822,3,artist,related artist
 53489,8351,1,artist,artist
 53490,4554,1,artist,artist
 53490,5370,2,artist,artist
@@ -90969,7 +90835,6 @@ objectID,constituentID,displayOrder,roleType,role
 56632,3325,1,artist,artist
 56633,1847,2,artist,artist after
 56633,3325,1,artist,artist
-56633,3325,3,artist,publisher
 56634,2673,2,artist,artist after
 56634,4880,1,artist,artist
 56635,2673,2,artist,artist after
@@ -91789,7 +91654,6 @@ objectID,constituentID,displayOrder,roleType,role
 58938,5339,1,artist,artist
 58672,2513,3,artist,artist after
 58672,4312,2,artist,artist
-58672,4312,4,artist,publisher
 58672,4702,1,artist,artist
 58702,4786,1,artist,artist
 58747,4823,1,artist,artist
@@ -91815,7 +91679,6 @@ objectID,constituentID,displayOrder,roleType,role
 58891,2824,1,artist,artist
 58921,1820,1,artist,artist
 58935,1822,2,artist,artist
-58935,1822,3,artist,related artist
 58935,8351,1,artist,artist
 58937,5339,1,artist,artist
 58939,1825,2,artist,artist after
@@ -92519,7 +92382,6 @@ objectID,constituentID,displayOrder,roleType,role
 62544,3334,1,artist,artist
 62545,5574,1,artist,artist
 62553,1960,1,artist,artist
-62553,1960,3,artist,printer
 62553,10793,2,artist,printer
 67710,2368,1,artist,artist
 62627,2426,1,artist,artist
@@ -92539,13 +92401,9 @@ objectID,constituentID,displayOrder,roleType,role
 62646,4588,1,artist,artist
 62646,5352,2,artist,artist after
 62653,970,1,artist,artist
-62653,970,3,artist,artist
 62653,5694,2,artist,artist after
-62653,5694,4,artist,artist after
 62654,970,1,artist,artist
-62654,970,3,artist,artist
 62654,5694,2,artist,artist after
-62654,5694,4,artist,artist after
 62655,970,3,artist,artist
 62655,3032,1,artist,artist
 62655,3136,2,artist,artist after
@@ -92971,14 +92829,11 @@ objectID,constituentID,displayOrder,roleType,role
 66574,6477,1,artist,artist
 66574,6494,3,artist,publisher
 66575,6494,1,artist,printer
-66575,6494,2,artist,publisher
 66576,6397,1,artist,artist after
 66576,6494,2,artist,printer
-66576,6494,3,artist,publisher
 66577,6397,2,artist,artist after
 66577,6479,1,artist,artist
 66577,6494,3,artist,printer
-66577,6494,4,artist,publisher
 66579,6481,1,artist,artist
 66582,1219,1,artist,artist
 66583,1334,1,artist,artist
@@ -96381,7 +96236,6 @@ objectID,constituentID,displayOrder,roleType,role
 119653,6528,1,artist,artist
 119654,1983,3,artist,artist after
 119654,6528,1,artist,artist
-119654,6528,2,artist,artist
 119655,1887,2,artist,artist after
 119655,6289,1,artist,artist
 119656,3278,2,artist,artist after
@@ -96491,7 +96345,6 @@ objectID,constituentID,displayOrder,roleType,role
 119877,978,1,artist,artist
 119879,2423,1,artist,artist
 119881,3805,1,artist,artist
-119881,3805,2,artist,publisher
 119881,6978,3,artist,publisher
 119893,25867,1,artist,artist
 119913,2553,1,artist,artist
@@ -97094,7 +96947,6 @@ objectID,constituentID,displayOrder,roleType,role
 128983,6085,2,artist,artist after
 128984,1484,1,artist,artist
 128988,2534,2,artist,related artist
-128988,2534,3,artist,artist after
 128988,27788,1,artist,artist
 129001,3570,1,artist,artist
 129003,4457,1,artist,artist
@@ -97125,28 +96977,21 @@ objectID,constituentID,displayOrder,roleType,role
 129371,2613,2,artist,artist after
 129371,26831,1,artist,artist
 129372,2534,2,artist,related artist
-129372,2534,3,artist,artist after
 129372,27788,1,artist,artist
 129373,2534,2,artist,related artist
-129373,2534,3,artist,artist after
 129373,27788,1,artist,artist
 129374,2534,2,artist,related artist
-129374,2534,3,artist,artist after
 129374,27788,1,artist,artist
 129375,2534,2,artist,related artist
-129375,2534,3,artist,artist after
 129375,27788,1,artist,artist
 129376,2534,2,artist,related artist
-129376,2534,3,artist,artist after
 129376,27788,1,artist,artist
 129377,2534,2,artist,related artist
-129377,2534,3,artist,artist after
 129377,27788,1,artist,artist
 129379,3221,2,artist,artist after
 129379,6674,1,artist,artist
 129390,1436,1,artist,artist
 129451,2534,1,artist,related artist
-129451,2534,2,artist,artist after
 129464,2534,1,artist,related artist
 129464,2639,2,artist,artist after
 129465,2534,1,artist,related artist
@@ -97924,16 +97769,11 @@ objectID,constituentID,displayOrder,roleType,role
 140112,2412,2,artist,artist
 140112,31606,1,artist,artist
 140123,2534,1,artist,related artist
-140123,2534,2,artist,artist after
 140124,2534,1,artist,related artist
-140124,2534,2,artist,artist after
 140125,2534,1,artist,related artist
-140125,2534,2,artist,artist after
 140126,2534,1,artist,related artist
-140126,2534,2,artist,artist after
 140132,1735,2,artist,artist after
 140132,3090,1,artist,artist
-140132,3090,3,artist,publisher
 140209,27685,1,artist,artist
 140359,1820,1,artist,artist
 140357,1820,1,artist,artist
@@ -97973,7 +97813,6 @@ objectID,constituentID,displayOrder,roleType,role
 141204,5259,1,artist,artist
 141205,1847,2,artist,artist after
 141205,2754,1,artist,artist
-141205,2754,3,artist,publisher
 141208,1259,2,artist,artist after
 141208,5259,1,artist,artist
 141208,19948,3,artist,artist after
@@ -97981,7 +97820,6 @@ objectID,constituentID,displayOrder,roleType,role
 141209,5259,1,artist,artist
 141210,1847,2,artist,artist after
 141210,3325,1,artist,artist
-141210,3325,3,artist,publisher
 141212,2834,1,artist,artist
 141213,28627,1,artist,artist
 141213,32826,2,artist,publisher
@@ -97994,7 +97832,6 @@ objectID,constituentID,displayOrder,roleType,role
 141979,17829,1,artist,artist
 141980,33017,1,artist,artist
 141982,1358,2,artist,artist after
-141982,1358,3,artist,publisher
 141982,4842,1,artist,artist
 141982,50469,4,artist,calligrapher
 141991,33020,1,artist,artist
@@ -98844,7 +98681,6 @@ objectID,constituentID,displayOrder,roleType,role
 153985,2534,2,artist,artist after
 153985,2652,1,artist,artist
 153986,2534,2,artist,artist
-153986,2534,3,artist,publisher
 153986,2652,1,artist,artist
 153988,2534,2,artist,artist after
 153988,2652,1,artist,artist
@@ -98975,7 +98811,6 @@ objectID,constituentID,displayOrder,roleType,role
 154121,2572,1,artist,artist
 154159,6477,1,artist,artist
 154159,6494,2,artist,printer
-154159,6494,3,artist,publisher
 180458,1209,1,artist,artist
 154208,2444,1,artist,artist
 180459,1209,1,artist,artist
@@ -99296,7 +99131,6 @@ objectID,constituentID,displayOrder,roleType,role
 156115,4160,1,artist,artist
 156115,4161,3,artist,publisher
 156176,2534,1,artist,related artist
-156176,2534,2,artist,artist after
 156116,2563,2,artist,artist after
 156116,4160,1,artist,artist
 156116,4161,3,artist,publisher
@@ -99367,7 +99201,6 @@ objectID,constituentID,displayOrder,roleType,role
 156144,12140,1,artist,artist
 180474,1209,1,artist,artist
 156156,2534,1,artist,related artist
-156156,2534,2,artist,artist after
 156156,27788,3,artist,publisher
 156145,4832,1,artist,artist
 156146,4110,1,artist,artist
@@ -99383,73 +99216,41 @@ objectID,constituentID,displayOrder,roleType,role
 156152,5422,4,artist,publisher
 156152,5423,3,artist,publisher
 156153,2534,1,artist,related artist
-156153,2534,2,artist,artist after
 156154,2534,1,artist,related artist
-156154,2534,2,artist,artist after
 156155,2534,1,artist,related artist
-156155,2534,2,artist,artist after
 156157,2534,1,artist,related artist
-156157,2534,2,artist,artist after
 156157,27788,3,artist,publisher
 156158,2534,1,artist,related artist
-156158,2534,2,artist,artist after
 156158,27788,3,artist,publisher
 156159,2534,1,artist,related artist
-156159,2534,2,artist,artist after
 156170,2534,1,artist,related artist
-156170,2534,2,artist,artist after
 156160,2534,1,artist,related artist
-156160,2534,2,artist,artist after
 156160,27788,3,artist,publisher
 156161,2534,1,artist,related artist
-156161,2534,2,artist,artist after
 156162,2534,1,artist,related artist
-156162,2534,2,artist,artist after
 156163,2534,1,artist,related artist
-156163,2534,2,artist,artist after
 156164,2534,1,artist,related artist
-156164,2534,2,artist,artist after
 156165,2534,1,artist,related artist
-156165,2534,2,artist,artist after
 156166,2534,1,artist,related artist
-156166,2534,2,artist,artist after
 180473,1209,1,artist,artist
 156167,2534,1,artist,related artist
-156167,2534,2,artist,artist after
 156168,2534,1,artist,related artist
-156168,2534,2,artist,artist after
 156169,2534,1,artist,related artist
-156169,2534,2,artist,artist after
 156171,2534,1,artist,related artist
-156171,2534,2,artist,artist after
 156172,2534,1,artist,related artist
-156172,2534,2,artist,artist after
 156173,2534,1,artist,related artist
-156173,2534,2,artist,artist after
 156174,2534,1,artist,related artist
-156174,2534,2,artist,artist after
 156175,2534,1,artist,related artist
-156175,2534,2,artist,artist after
 156177,2534,1,artist,related artist
-156177,2534,2,artist,artist after
 156178,2534,1,artist,related artist
-156178,2534,2,artist,artist after
 156179,2534,1,artist,related artist
-156179,2534,2,artist,artist after
 156180,2534,1,artist,related artist
-156180,2534,2,artist,artist after
 156181,2534,1,artist,related artist
-156181,2534,2,artist,artist after
 156182,2534,1,artist,related artist
-156182,2534,2,artist,artist after
 156183,2534,1,artist,related artist
-156183,2534,2,artist,artist after
 156184,2534,1,artist,related artist
-156184,2534,2,artist,artist after
 156185,2534,1,artist,related artist
-156185,2534,2,artist,artist after
 156186,2534,1,artist,related artist
-156186,2534,2,artist,artist after
 156244,2413,2,artist,artist after
 156244,3272,1,artist,artist
 156245,35916,1,artist,artist
@@ -99534,7 +99335,6 @@ objectID,constituentID,displayOrder,roleType,role
 157548,4238,1,artist,artist
 157551,6477,1,artist,artist
 157551,6494,3,artist,printer
-157551,6494,4,artist,publisher
 157551,36950,2,artist,artist after
 157913,23922,1,artist,artist
 196451,1209,1,artist,artist
@@ -100831,7 +100631,6 @@ objectID,constituentID,displayOrder,roleType,role
 183078,1209,1,artist,artist
 183088,5236,1,artist,artist
 183092,2678,1,artist,artist
-183092,2678,2,artist,printer
 183093,2678,1,artist,artist
 183094,2678,1,artist,artist
 183095,2678,1,artist,artist
@@ -101140,14 +100939,12 @@ objectID,constituentID,displayOrder,roleType,role
 184971,1209,1,artist,artist
 184979,40283,1,artist,artist
 184979,47586,2,artist,printer
-184979,47586,3,artist,publisher
 196561,1209,1,artist,artist
 184983,1974,1,artist,artist
 184984,1974,1,artist,artist
 184985,1974,1,artist,artist
 184985,46429,2,artist,printer
 185010,6494,1,artist,printer
-185010,6494,2,artist,publisher
 196564,1209,1,artist,artist
 196565,1209,1,artist,artist
 196679,1209,1,artist,artist
