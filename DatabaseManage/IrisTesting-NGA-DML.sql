@@ -46,7 +46,7 @@ WHERE OT.term = 'Gothic' AND OT.termType = 'Style'; # 71 art-objects of "Gothic"
 SELECT O.title, O.attribution, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_images OI
                JOIN objects_terms OT
-    ON O.objectID =OI.objectID AND O.objectID =OT.objectID
+    ON O.objectID = OI.objectID AND O.objectID =OT.objectID
 WHERE OT.term = 'Dutch' AND OT.termType = 'School'; # 71 art-objects of "Gothic" Style
 #WHERE OT.term = 'Qing' AND OT.termType = 'School'; # 71 art-objects of "Gothic" Style
 #WHERE OT.term = 'Gothic' AND OT.termType = 'School'; # 71 art-objects of "Gothic" Style
@@ -85,6 +85,7 @@ WHERE (O.attribution LIKE '%Picasso%' OR O.attributionInverted LIKE '%Picasso%' 
 ORDER BY O.attribution, C.lastName, C.beginYear, O.title;
 
 
+/*
 SELECT O.title, O.attribution, C.beginYear, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_constituents OC
                 JOIN constituents C
@@ -93,6 +94,8 @@ FROM objects O JOIN objects_constituents OC
 WHERE (O.attribution LIKE '%Henri%' OR O.attributionInverted LIKE '%Henri%' OR C.lastName LIKE '%Henri%'
     OR C.preferredDisplayName LIKE '%Henri%' OR C.forwardDisplayName LIKE '%Henri%')
 ORDER BY C.lastName, C.beginYear, O.title;
+*/
+
 
 /* -----------------------------------------------------------*/
 /* -------------- Search keyword: Artwork Title --------------*/
@@ -102,35 +105,86 @@ FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
 WHERE (O.title LIKE '%Portrait%')
 ORDER BY O.title, O.attribution;
 
+/* --------------------------------------------------------------*/
+/* ------- Find Specific Artwork by its unique objectID ---------*/
+/* --------------------------------------------------------------*/
+
+/* Testing Sample:
+   ex. Displaying artwork titled "American Flamingo"
+   objectID = 32572
+   */
+/* Testing Sample 2:
+   ex. Displaying artwork titled "Saint James Major"
+   objectID = 0
+   constituentID = 38613
+   forwardDisplayName = Grifo di Tancredi
+   */
+
+-- these three queries are executed together to get the full info -------
+# 1) get the info about this artwork
+SELECT O.title, O.attribution, O.medium, O.dimensions, O.classification, O.series, O.portfolio, O.volume, OI.URL
+FROM objects O JOIN objects_images OI ON O.objectID = OI.objectID
+WHERE O.objectID = 0;
+# 2) get the info of its composing artists (may be more than one)
+SELECT C.preferredDisplayName,OC.displayOrder, C.displayDate, C.visualBrowserNationality
+FROM objects_constituents OC JOIN constituents C ON OC.constituentID = C.constituentID
+WHERE OC.objectID = 0
+ORDER BY displayOrder;
+#3) get the related semantic terms to this artwork (for recommendation by similarity)
+SELECT OT.termType, OT.term
+FROM objects_terms OT
+WHERE OT.objectID = 0
+ORDER BY termType;
 
 /* -----------------------------------------------------------*/
 /* --------------- Recommend by Similarity  ------------------*/
 /* -----------------------------------------------------------*/
 
-/* Testing Sample:
+/* Testing Sample 1:
    ex. Displaying artwork titled "American Flamingo"
    objectID = 32572
    constituentID = 122
    forwardDisplayName = John James Audubon
+   series = The Birds of America
    lastName: Audubon
    */
 
-# this primary recommandation
-SELECT  O.title, O.attribution, O.objectID, OI.thumbURL
+/* Testing Sample 2:
+   ex. Displaying artwork titled "Saint James Major"
+   objectID = 0
+   constituentID = 38613
+   forwardDisplayName = Grifo di Tancredi
+   */
+
+# Primary Recommendation
+SELECT DISTINCT O.title, O.attribution, O.objectID, OI.thumbURL, O.series, O.portfolio, O.volume
 FROM objects O JOIN objects_constituents OC
         JOIN constituents C
         JOIN objects_images OI
-        JOIN objects_terms OT
-    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID
-    AND O.objectID = OI.objectID AND O.objectID = OT.objectID
-WHERE (O.objectID <> 32572 ) AND
-      ( (C.constituentID = 122) OR
-        (O.portfolio = '%The Birds of America%') OR
-        (O.series LIKE '%The Birds of America%') OR
-        (O.volume LIKE '%The Birds of America%') )
-ORDER BY O.series, O.portfolio, O.attribution;
+    ON O.objectID = OC.objectID AND
+       OC.constituentID = C.constituentID AND
+       O.objectID = OI.objectID
+WHERE (O.objectID <> 0 ) AND (O.classification = 'painting') AND
+      ( (O.portfolio LIKE '%') OR
+        (O.series LIKE '%') OR
+        (O.volume LIKE '%') OR
+        (C.constituentID = 38613) )
+ORDER BY O.series, O.portfolio, O.volume, O.attribution
+LIMIT 4;
 # Comment: this query can run, but slow, think about a more efficient query (i.e. use UNION)
-# Also if no serie/volumn/porfolio/artist in common, consider secondary recommendation: by Style, School, Theme
+# Also
+
+# Secondary Recommandation: if no serie/volume/porfolio/artist in common, consider secondary recommendation: by Style, School, Theme
+SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OT.termType, O.series, O.portfolio, O.volume
+FROM objects O JOIN objects_images OI JOIN objects_terms OT
+    ON O.objectID = OI.objectID AND O.objectID = OT.objectID
+WHERE (O.objectID <> 0 ) AND (O.classification = 'painting') AND (
+      (OT.termType = 'Style' AND OT.term = 'Gothic') OR
+      (OT.termType = 'School' AND OT.term = 'Florentine') OR
+      (OT.termType = 'Keyword' AND OT.term = 'James Major') OR
+      (OT.termType = 'Theme' AND OT.term = 'saints') )
+ORDER BY termType
+LIMIT 4;
 
 
 # #############################################################
@@ -141,6 +195,26 @@ ORDER BY O.series, O.portfolio, O.attribution;
 /* --------------- Naughty Search by Height  -----------------*/
 /* -----------------------------------------------------------*/
 
+# Comment-Iris: I tested range 150 ~ 300 cm, this query is pretty good.
+SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(10-OD.dimension)
+FROM objects O JOIN objects_images OI
+    JOIN objects_dimensions OD
+    ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters'
+ORDER BY ABS(10-OD.dimension), O.title
+LIMIT 10;
+
+/* 2nd optimal solution (with +/- 1cm range)
+SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(195-OD.dimension)
+FROM objects O JOIN objects_images OI
+    JOIN objects_dimensions OD
+    ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+WHERE (OD.dimensionType = 'height' AND OD.unitName = 'centimeters') AND
+      (OD.dimension >= 195-1 AND OD.dimension <= 195+1)
+ORDER BY ABS(195-OD.dimension), O.title;
+ */
+
+/* LEAST optimal solution
 SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension
 FROM objects O JOIN objects_images OI
     JOIN objects_dimensions OD
@@ -148,21 +222,24 @@ FROM objects O JOIN objects_images OI
 WHERE (OD.dimensionType = 'height' AND OD.unitName = 'centimeters') AND
       (OD.dimension >= 195-1 AND OD.dimension <= 195+1)
 ORDER BY OD.dimension, O.title;
-# Comment I tested range 150 ~ 200 cm, this query is pretty good.
-# think of a more precise way to query for the exact height, may use nested subQuery
+ */
 
 /* ----------------------------------------------------------------------------*/
 /* --- Naughty Search by birthYear (backing 100, 200, 300 years.)--------------*/
 /* ----------------------------------------------------------------------------*/
 
-SELECT O.title, O.attribution, O.objectID, O.endYear, OI.thumbURL, OD.dimension
-FROM objects O JOIN objects_images OI
-    JOIN objects_dimensions OD
+SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(1997-100-O.endYear), OI.thumbURL, OD.dimension
+FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
     ON O.objectID =OI.objectID AND O.objectID = OD.objectID
-WHERE O.endYear >= 1997 - 100 AND O.endYear <= 1997 AND OD.dimensionType = 'height'
-ORDER BY O.endYear, OD.dimension DESC;
+WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+ORDER BY ABS(1997-100-O.endYear), OD.dimension DESC ;
 # can ask user to select if want to see backing how many years ago: i.e. 100? 200? 300? yrs ago
 
+SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(1989-0-O.endYear), OI.thumbURL, OD.dimension
+FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
+    ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+ORDER BY ABS(1989-0-O.endYear), OD.dimension DESC ;
 
 # #############################################################
 # ################## Feature #3 ###############################
@@ -176,6 +253,7 @@ FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
 WHERE OT.termType = 'Style'
 GROUP BY OT.term
 ORDER BY COUNT(*) DESC;
+
 
 /* -----------------------------------------------------------*/
 /* --------------- Semantic Analysis: School------------------*/
@@ -216,9 +294,9 @@ GROUP BY OT.term
 ORDER BY COUNT(*) DESC;
 
 
-/* -----------------------------------------------------------*/
+/* -----------------------------------------------------------------*/
 /* --------------- Semantic Analysis: PlaceExecuted------------------*/
-/* -----------------------------------------------------------*/
+/* -----------------------------------------------------------------*/
 SELECT OT.term, COUNT(*) AS PlaceExecutedCounts
 FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
 WHERE OT.termType = 'Place Executed'
@@ -226,4 +304,175 @@ GROUP BY OT.term
 ORDER BY COUNT(*) DESC;
 
 
+/* -----------------------------------------------------------------*/
+/* --------------- Semantic Analysis: Portrait Across Time------------------*/
+/* -----------------------------------------------------------------*/
 
+/*
+WITH portrait1500 AS (SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI
+                JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.term = 'portrait' AND ( O.endYear <= 1599 AND O.endYear >= 1500)
+        ORDER BY O.endYear
+        LIMIT 5),
+portrait1600 AS (SELECT O.title, O.attribution, O.classification,O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI
+                JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.term = 'portrait' AND ( O.endYear <= 1699 AND O.endYear >= 1600)
+        ORDER BY O.endYear
+        LIMIT 5),
+portrait1700 AS (SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI
+                JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.term = 'portrait' AND ( O.endYear <= 1799 AND O.endYear >= 1700)
+        ORDER BY O.endYear
+        LIMIT 5),
+portrait1800 AS (SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI
+                JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.term = 'portrait' AND ( O.endYear <= 1899 AND O.endYear >= 1800)
+        ORDER BY O.endYear
+        LIMIT 5),
+portrait1900 AS (SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI
+                JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.term = 'portrait' AND ( O.endYear <= 1999 AND O.endYear >= 1900)
+        ORDER BY O.endYear
+        LIMIT 5),
+portrait2000 AS (SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI
+                JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.term = 'portrait' AND ( O.endYear <= 2099 AND O.endYear >= 2000)
+        ORDER BY O.endYear
+        LIMIT 5)
+SELECT title, attribution, classification, objectID, thumbURL, endYear FROM portrait1500
+    UNION
+SELECT title, attribution, classification, objectID, thumbURL, endYear FROM portrait1600
+    UNION
+SELECT title, attribution, classification, objectID, thumbURL, endYear FROM portrait1700
+    UNION
+SELECT title, attribution, classification, objectID, thumbURL, endYear FROM portrait1800
+    UNION
+SELECT title, attribution, classification, objectID, thumbURL, endYear FROM portrait1900
+    UNION
+SELECT title, attribution, classification, objectID, thumbURL, endYear FROM portrait2000;
+ */
+
+-- if query every time period specifically -----------
+SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1599 AND O.endYear >= 1500) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5;
+
+
+-- if want to query across all centries together (we will probably display this query result as a general overview -------
+-- Portrait across time: Paintings ---------------
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1599 AND O.endYear >= 1500) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5)
+ UNION
+(SELECT O.title, O.attribution, O.classification,O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1699 AND O.endYear >= 1600) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1799 AND O.endYear >= 1700) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1899 AND O.endYear >= 1800) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1999 AND O.endYear >= 1900) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 2099 AND O.endYear >= 2000) AND classification = 'painting'
+        ORDER BY O.endYear
+        LIMIT 5);
+
+
+-- Portrait across time: Prints ---------------
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1599 AND O.endYear >= 1500) AND classification = 'print'
+        ORDER BY O.endYear
+        LIMIT 5)
+ UNION
+(SELECT O.title, O.attribution, O.classification,O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1699 AND O.endYear >= 1600) AND classification = 'print'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1799 AND O.endYear >= 1700) AND classification = 'print'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1899 AND O.endYear >= 1800) AND classification = 'print'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 1999 AND O.endYear >= 1900) AND classification = 'print'
+        ORDER BY O.endYear
+        LIMIT 5)
+UNION
+(SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endYear
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+        ON O.objectID =OI.objectID AND O.objectID = OT.objectID
+        WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= 2099 AND O.endYear >= 2000) AND classification = 'print'
+        ORDER BY O.endYear
+        LIMIT 5);
+
+
+# ####################################################################
+-- --------- Checking AWS RDS MySQL instance Storage Space ---------
+# ####################################################################
+USE DataOmni_NGA;
+
+-- Size in MB ---------
+SELECT table_schema AS "", SUM(data_length + index_length) / 1024 / 1024 AS "Size (MB)"
+FROM information_schema.TABLES
+GROUP BY table_schema;
+
+-- Size in GB ---------
+SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)"
+FROM information_schema.TABLES
+GROUP BY table_schema;
