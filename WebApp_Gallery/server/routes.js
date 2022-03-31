@@ -155,6 +155,9 @@ async function all_players(req, res) {
                 res.json({ results: results })
             }
         });
+
+        // totalRes = res1+ res2 + res3
+        
     } else {
         // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
         connection.query(
