@@ -212,3 +212,19 @@ CREATE TABLE objects_text_entries (
 -- ---------------------------------------------------------------
 
 SELECT COUNT(*) FROM objects_text_entries;
+
+
+# ####################################################################
+-- --------- Checking AWS RDS MySQL instance Storage Space ---------
+# ####################################################################
+USE DataOmni_NGA;
+
+-- Size in MB ---------
+SELECT table_schema AS "", SUM(data_length + index_length) / 1024 / 1024 AS "Size (MB)"
+FROM information_schema.TABLES
+GROUP BY table_schema;
+
+-- Size in GB ---------
+SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)"
+FROM information_schema.TABLES
+GROUP BY table_schema;

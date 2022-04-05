@@ -1,8 +1,13 @@
 const config = require('./config.json')
 const mysql = require('mysql');
+const util = require("util");
 const e = require('express');
 
-// TODO: fill in your connection details here
+/** **************************************
+ * Iris Comment: Same as HW2, don't change
+ * ***************************************
+ * fill in connection details
+ */
 const connection = mysql.createConnection({
     host: config.rds_host,
     user: config.rds_user,
@@ -10,54 +15,69 @@ const connection = mysql.createConnection({
     port: config.rds_port,
     database: config.rds_db
 });
+//promise wrapper to enable async await with MYSQL
+connection.query = util.promisify(connection.query).bind(connection);
+// establish the connection to database
 connection.connect();
 
 
-// ********************************************
-//            SIMPLE ROUTE EXAMPLE
-// ********************************************
-
-// Route 1 (handler)
-async function hello(req, res) {
-    // a GET request to /hello?name=Steve
-    if (req.query.name) {
-        res.send(`Hello, ${req.query.name}! Welcome to the FIFA server!`)
-        //Note: this "name" is a query parameter, which will be specified in this manner "?name=Steve" as http://localhost:8080/jersey/number?name=Steve
-    } else {
-        res.send(`Hello! Welcome to the FIFA server!`)
-    }
+/** **************************************
+ * Route 1 (handler) - galleryOverview
+ * ***************************************
+ * query and return for gallery summary statistics
+ * i.e. there are 3800+ paintings, 30000+ drawings, 70000+ prints..
+ */
+async function galleryOverview(req, res) {
+    // a GET request to URL: /home
+    connection.query(
+        `SELECT classification, count(*) as artworkCounts
+        FROM objects
+        GROUP BY classification;`, 
+    function (error, results, fields) {
+        // if the query action results in ERORR rising, output the error message to console display
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        // if there is legit query reusults returned, diplay the result
+        } else if (results) {
+            const strWelcome = `Welcome to DataOmni's Virtual Gallery (powered by National Gallery of Art)!`
+            res.json({ msg: strWelcome, results: results })
+        }
+    });
 }
 
+/** **************************************
+ * Route 2 (handler) - 
+ * ***************************************
+ * 
+ */
+async function artworkInfo(req, res) {
 
-// ********************************************
-//                  WARM UP 
-// ********************************************
-// ***** TASK 1 & 2 & 3************************
-// Route 2 (handler)
-async function jersey(req, res) {
+    // 1) query for part 1 of the result
+    let queryStr1= `SELECT O.title, O.attribution, O.medium, O.dimensions, O.classification, O.series, O.portfolio, O.volume, OI.URL
+    FROM objects O JOIN objects_images OI ON O.objectID = OI.objectID
+    WHERE O.objectID = 0;`
 
-    // Parameterized Routes (server.js): app.get('/jersey/:choice', routes.jersey)
-    // 3 options for route paramter--`:choice` : colors, jersey_number, name 
-    const colors = ['red', 'blue', 'white']
-    const jersey_number = Math.floor(Math.random() * 20) + 1
-    const name = req.query.name ? req.query.name : "player"
+    const p1 = await connection.query(queryStr1).catch(err => {throw err});
 
-    if (req.params.choice === 'number') {
-        // TODO: TASK 1: inspect for issues and correct 
-        // res.json({ message: `Hello, ${name}!`, lucky_number: jersey_number }) // BUG
-        // DEBUG note: "lucky_number" to "jersey_number"
-        res.json({ message: `Hello, ${name}!`, jersey_number: jersey_number })
-    } else if (req.params.choice === 'color') {
-        //var lucky_color_index = Math.floor(Math.random() * 2) + 1; //BUG:: this return random range [1,2], which are the index for blue and white
-        // TODO: TASK 2: change this or any variables above to return only 'red' or 'blue' at random (go Quakers!)
-        // DEBUG note: "*2" means to scale the returned [0~1) by 2, together with .floor() function, it achieves the puporse of randomly return a number of [0,1]
-        var lucky_color_index = Math.floor(Math.random() * 2); 
-        res.json({ message: `Hello, ${name}!`, jersey_color: colors[lucky_color_index] })
-    } else {
-        // TODO: TASK 3: inspect for issues and correct
-        // res.json({ message: `Hello,${name}, we like your jersey!` }) //BUG: need a space before name
-        res.json({ message: `Hello, ${name}, we like your jersey!` })
-    }
+    // 2) query for part 2 of the result
+    let queryStr2= `SELECT C.preferredDisplayName,OC.displayOrder, C.displayDate, C.visualBrowserNationality
+    FROM objects_constituents OC JOIN constituents C ON OC.constituentID = C.constituentID
+    WHERE OC.objectID = 0
+    ORDER BY displayOrder;`
+    const p2 = await connection.query(queryStr2).catch(err => {throw err});
+
+    // 3) query for part 3 of the result
+    let queryStr3 = `SELECT OT.termType, OT.term
+    FROM objects_terms OT
+    WHERE OT.objectID = 0
+    ORDER BY termType;`
+
+    const p3 = await connection.query(queryStr3).catch(err => {throw err});
+    
+    // 4) return all three parts together as a JSON object
+    res.json( {results_P1 : p1, results_P2: p2, results_P3: p3} );
+
 }
 
 // ********************************************
@@ -414,12 +434,6 @@ async function search_players(req, res) {
 }
 
 module.exports = {
-    hello,
-    jersey,
-    all_matches,
-    all_players,
-    match,
-    player,
-    search_matches,
-    search_players
+    galleryOverview,
+    artworkInfo
 }

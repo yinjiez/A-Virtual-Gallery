@@ -3,7 +3,7 @@
     "rds_port": "3306",
     "rds_user": "irisma",
     "rds_password" : "koala0312",
-    "rds_db": "FIFA",
+    "rds_db": "DataOmni_NGA",
     "server_host": "127.0.0.1",
     "server_port":"8080"
 }

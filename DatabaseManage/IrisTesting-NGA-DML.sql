@@ -462,21 +462,12 @@ UNION
         LIMIT 5);
 
 
-# ####################################################################
--- --------- Checking AWS RDS MySQL instance Storage Space ---------
-# ####################################################################
-USE DataOmni_NGA;
+# #############################################################
+# ################## Feature #4 ###############################
+# #############################################################
 
--- Size in MB ---------
-SELECT table_schema AS "", SUM(data_length + index_length) / 1024 / 1024 AS "Size (MB)"
-FROM information_schema.TABLES
-GROUP BY table_schema;
-
--- Size in GB ---------
-SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)"
-FROM information_schema.TABLES
-GROUP BY table_schema;
+SELECT classification, count(*) as artworkCounts
+FROM objects
+GROUP BY classification;
 
 
-
-# demo for github

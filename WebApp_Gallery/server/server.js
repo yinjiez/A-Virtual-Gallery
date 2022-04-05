@@ -8,40 +8,40 @@ const config = require('./config.json')
 
 const app = express();
 
+// Iris Comment: Same as HW2, don't change-----------------------
 // whitelist localhost 3000
 app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 
 // Route 1 - register as GET 
-app.get('/hello', routes.hello)
+// galleryOverview
+app.get('/home', routes.galleryOverview)
 
 // Route 2 - register as GET 
-app.get('/jersey/:choice', routes.jersey)
+app.get('/artwork', routes.artworkInfo)
 
 // Route 3 - register as GET 
-app.get('/matches/:league', routes.all_matches)
+//app.get('/matches/:league', routes.all_matches)
 // Route 3 (EXPERIMENT) - register as GET
 // app.get('/matches', routes.all_matches)
 // Note: with this .get() function, URL "http://localhost:8080/matches" will return defualt query result as record for "D1"-"Bundesliga" league
 
 // Route 4 - register as GET 
-app.get('/players', routes.all_players)
+//app.get('/players', routes.all_players)
 
 // Route 5 - register as GET 
-app.get('/match', routes.match)
+//app.get('/match', routes.match)
 
 // Route 6 - register as GET 
-app.get('/player', routes.player)
+//app.get('/player', routes.player)
 
 // Route 7 - register as GET 
-app.get('/search/matches', routes.search_matches)
+//app.get('/search/matches', routes.search_matches)
 
 // Route 8 - register as GET 
-app.get('/search/players', routes.search_players)
+//app.get('/search/players', routes.search_players)
 
 
-
-
-
+// Iris Comment: Same as HW2, don't change-----------------------
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
 });
