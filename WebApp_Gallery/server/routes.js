@@ -1,6 +1,6 @@
 const config = require('./config.json')
 const mysql = require('mysql');
-const util = require("util");
+const util = require("util"); // NEW FEATURE!!
 const e = require('express');
 
 /** **************************************
@@ -28,22 +28,26 @@ connection.connect();
  * i.e. there are 3800+ paintings, 30000+ drawings, 70000+ prints..
  */
 async function galleryOverview(req, res) {
+    
+    let queryStr = `
+    SELECT classification, count(*) as artworkCounts
+    FROM objects
+    GROUP BY classification;`;
+    
     // a GET request to URL: /home
-    connection.query(
-        `SELECT classification, count(*) as artworkCounts
-        FROM objects
-        GROUP BY classification;`, 
-    function (error, results, fields) {
-        // if the query action results in ERORR rising, output the error message to console display
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        // if there is legit query reusults returned, diplay the result
-        } else if (results) {
-            const strWelcome = "Welcome to DataOmni's Virtual Gallery (powered by National Gallery of Art)!"
-            res.json({ msg: strWelcome, results: results })
+    connection.query( queryStr, 
+            function (error, results, fields) {
+            // if the query action results in ERORR rising, output the error message to console display
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            // if there is legit query reusults returned, diplay the result
+            } else if (results) {
+                const strWelcome = "Welcome to DataOmni's Virtual Gallery (powered by National Gallery of Art)!"
+                res.json({ msg: strWelcome, results: results })
+            }
         }
-    });
+    );
 };
 
 /** **************************************
@@ -57,23 +61,26 @@ async function galleryOverview(req, res) {
 async function artworkInfo(req, res) {
 
     // 1) query for part 1 of the result
-    let queryStr1= `SELECT O.title, O.attribution, O.medium, O.dimensions, O.classification, O.series, O.portfolio, O.volume, OI.URL
+    let queryStr1= `
+    SELECT O.title, O.attribution, O.medium, O.dimensions, O.classification, O.series, O.portfolio, O.volume, OI.URL
     FROM objects O JOIN objects_images OI ON O.objectID = OI.objectID
-    WHERE O.objectID = 0;`
+    WHERE O.objectID = 0;` ;
     const p1 = await connection.query(queryStr1).catch(err => {throw err});
 
     // 2) query for part 2 of the result
-    let queryStr2= `SELECT C.preferredDisplayName,OC.displayOrder, C.displayDate, C.visualBrowserNationality
+    let queryStr2= `
+    SELECT C.preferredDisplayName,OC.displayOrder, C.displayDate, C.visualBrowserNationality
     FROM objects_constituents OC JOIN constituents C ON OC.constituentID = C.constituentID
     WHERE OC.objectID = 0
-    ORDER BY displayOrder;`
+    ORDER BY displayOrder;` ;
     const p2 = await connection.query(queryStr2).catch(err => {throw err});
 
     // 3) query for part 3 of the result
-    let queryStr3 = `SELECT OT.termType, OT.term
+    let queryStr3 = `
+    SELECT OT.termType, OT.term
     FROM objects_terms OT
     WHERE OT.objectID = 0
-    ORDER BY termType;`
+    ORDER BY termType;` ;
 
     const p3 = await connection.query(queryStr3).catch(err => {throw err});
     
@@ -92,7 +99,8 @@ async function artworkInfo(req, res) {
  async function similarArtworks(req, res) {
 
     // 1) query for part 1 of the result
-    let queryStr1 = `SELECT DISTINCT O.title, O.attribution, O.objectID, OI.thumbURL, O.series, O.portfolio, O.volume
+    let queryStr1 = `
+    SELECT DISTINCT O.title, O.attribution, O.objectID, OI.thumbURL, O.series, O.portfolio, O.volume
     FROM objects O JOIN objects_constituents OC
             JOIN constituents C
             JOIN objects_images OI
@@ -105,7 +113,7 @@ async function artworkInfo(req, res) {
             (O.volume LIKE '%') OR
             (C.constituentID = 38613) )
     ORDER BY O.series, O.portfolio, O.volume, O.attribution
-    LIMIT 4;`
+    LIMIT 4;`;
     const same1 = await connection.query(queryStr1).catch(err => {throw err});
 
     // 2) query for part 2 of the result
@@ -118,15 +126,16 @@ async function artworkInfo(req, res) {
           (OT.termType = 'Keyword' AND OT.term = 'James Major') OR
           (OT.termType = 'Theme' AND OT.term = 'saints') )
     ORDER BY termType
-    LIMIT 4;`
+    LIMIT 4;` ;
     const same2 = await connection.query(queryStr2).catch(err => {throw err});
     
     // 4) return all three parts together as a JSON object
     res.json( {results_P1 : same1, results_P2: same2});
 };
 
-
-
+// #######################################
+// ############# YINJIE ##################
+// #######################################
 /** **************************************
  * Route 4 (handler) - filterSearch
  * ***************************************
@@ -138,6 +147,9 @@ async function artworkInfo(req, res) {
 
 
  
+ // #######################################
+// ############# YINJIE ##################
+// #######################################
 /** **************************************
  * Route 5 (handler) - naughtySearch
  * ***************************************
@@ -154,17 +166,94 @@ async function naughtySearch(req, res) {
  * 
  */
  async function analysisOverview(req, res) {
-    return res.json({error: "Not implemented"});
+    let queryStr = `
+    SELECT OT.termType, COUNT(*) AS termTypeCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    GROUP BY OT.termType
+    ORDER BY COUNT(*) DESC;
+    `;
+    
+    // a GET request to URL: /home
+    connection.query( queryStr, 
+            function (error, results, fields) {
+            // if the query action results in ERORR rising, output the error message to console display
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            // if there is legit query reusults returned, diplay the result
+            } else if (results) {
+                res.json({ results: results })
+            }
+        }
+    );
 };
 
 
 /** **************************************
  * Route 7 (handler) - analysisByType
  * ***************************************
- * 
+ * front-end will prompt user to specify whcih type of analysis he/she wants to check
+ * analysis types: Style, School, Theme, Technique, Keyword, Place Executed
+ * Note: single space in URL's route parameter needs to be encoded as `%20` 
+ * ex. URL http://localhost:8080/analysis/analysisByType/Place%20Executed
+ * ex. URL (pagination) http://localhost:8080/analysis/analysisByType/Place%20Executed?page=2&pageszie=10
+
  */
  async function analysisByType(req, res) {
-    return res.json({error: "Not implemented"});
+    
+    //1) fetch Route Paramter from {URL parameter portion}
+    const analysisType = req.params.analysisType ? req.params.analysisType : 'Style' // default analysis is by Style
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT OT.term, COUNT(*) AS termCounts
+        FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+        WHERE OT.termType = '${analysisType}'
+        GROUP BY OT.term
+        ORDER BY COUNT(*) DESC
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT OT.term, COUNT(*) AS termCounts
+        FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+        WHERE OT.termType = '${analysisType}'
+        GROUP BY OT.term
+        ORDER BY COUNT(*) DESC;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+
 };
 
 

@@ -21,27 +21,42 @@ app.get('/home', routes.galleryOverview);
 // Route 2 - register as GET 
 app.get('/artwork/:objectID', routes.artworkInfo);
 
-
 // Route 3 - register as GET 
 // these two routes are interchangable
-app.get('/similarArtworks', routes.similarArtworks);
 app.get('/artwork/:objectID/similarArtworks', routes.similarArtworks);
+app.get('/similarArtworks', routes.similarArtworks);
 
 
+// #######################################
+// ############# YINJIE ##################
+// #######################################
 // Route 4 - register as GET 
 app.get('/search/filter', routes.filterSearch);
+// /search/filter?Nationality=xxx&name=xxx <== Query Param
 
+
+// #######################################
+// ############# YINJIE ##################
+// #######################################
 // Route 5 - register as GET 
 app.get('/search/naughty/:searchType', routes.naughtySearch);
+// router param:  searchType = height, or searchType = birthYear
+// query param: ?height=
+// query param: ?birthYear=
 
+
+// #######################################
+// ############# IRIS ####################
+// #######################################
 // Route 6 - register as GET 
 app.get('/analysis/analysisOverview', routes.analysisOverview);
 
 // Route 7 - register as GET 
-app.get('/analysis/analysisByType/:analysisType', routes.analysisOverview);
+app.get('/analysis/analysisByType/:analysisType', routes.analysisByType);
 
 // Route 8 - register as GET 
 app.get('/analysis/portraitsAcrossTime', routes.portraitsAcrossTime);
+
 
 // Iris Comment: Same as HW2, don't change-----------------------
 app.listen(config.server_port, () => {
