@@ -2,11 +2,14 @@ const express = require('express');
 const mysql      = require('mysql');
 var cors = require('cors')
 
-
 const routes = require('./routes')
 const config = require('./config.json')
 
 const app = express();
+
+// #######################################
+// ############# IRIS ####################
+// #######################################
 
 /** **************************************
  * Iris Comment: Same as HW2, don't change
@@ -19,11 +22,11 @@ app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 app.get('/home', routes.galleryOverview);
 
 // Route 2 - register as GET 
-app.get('/artwork/:objectID', routes.artworkInfo);
+app.get('/artwork', routes.artworkInfo);
 
 // Route 3 - register as GET 
 // these two routes are interchangable
-app.get('/artwork/:objectID/similarArtworks', routes.similarArtworks);
+app.get('/artwork/similarArtworks', routes.similarArtworks);
 app.get('/similarArtworks', routes.similarArtworks);
 
 
@@ -55,7 +58,7 @@ app.get('/analysis/analysisOverview', routes.analysisOverview);
 app.get('/analysis/analysisByType/:analysisType', routes.analysisByType);
 
 // Route 8 - register as GET 
-app.get('/analysis/portraitsAcrossTime', routes.portraitsAcrossTime);
+app.get('/analysis/portraitsAcrossTime/:artworkClass', routes.portraitsAcrossTime);
 
 
 // Iris Comment: Same as HW2, don't change-----------------------
