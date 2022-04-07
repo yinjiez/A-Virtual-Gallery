@@ -228,25 +228,52 @@ async function artworkInfo(req, res) {
  };
 
 
- 
- // #######################################
+// #######################################
 // ############# YINJIE ##################
 // #######################################
 /** **************************************
- * Route 5 (handler) - naughtySearch
+ * Route 5 (handler) - keywordSearch
  * ***************************************
- * naughty search by height, OR naughty search by birthYear
+ * search relavent artworks by artwork's title OR/AND artist's name
  */
-async function naughtySearch(req, res) {
+ async function keywordSearch(req, res) {
+    return res.json({error: "Not implemented"});
+ };
+
+
+ 
+// #######################################
+// ############# YINJIE ##################
+// #######################################
+/** **************************************
+ * Route 6 (handler) - naughtySearchByHeight
+ * ***************************************
+ * naughty search by user's height
+ */
+async function naughtySearchByHeight(req, res) {
     return res.json({error: "Not implemented"});
 };
+
+
+// #######################################
+// ############# YINJIE ##################
+// #######################################
+/** **************************************
+ * Route 7 (handler) - naughtySearchByBirthYear
+ * ***************************************
+ * naughty search by user's birthYear
+ */
+ async function naughtySearchByBirthYear(req, res) {
+    return res.json({error: "Not implemented"});
+};
+
 
 
 // #######################################
 // ############# IRIS ####################
 // #######################################
 /** **************************************
- * Route 6 (handler) - analysisOverview
+ * Route 8 (handler) - analysisOverview
  * ***************************************
  * 1) Showing how many term varieties each big analysis category contains
  *      i.e. School (162), Style(82), Theme(467), Technique(163), Keyword(6320), Place Executed (1000)
@@ -359,7 +386,7 @@ async function naughtySearch(req, res) {
 // ############# IRIS ####################
 // #######################################
 /** **************************************
- * Route 7 (handler) - analysisByType
+ * Route 9 (handler) - analysisByType
  * ***************************************
  * front-end will prompt user to specify whcih type of analysis he/she wants to check
  * analysis types: Style, School, Theme, Technique, Keyword, Place Executed
@@ -429,7 +456,7 @@ async function naughtySearch(req, res) {
 // ############# IRIS ####################
 // #######################################
 /** **************************************
- * Route 8 (handler) - portraitsAcrossTime
+ * Route 10 (handler) - portraitsAcrossTime
  * ***************************************
  * URL route parameter `:artworkClass`: 'painting' or 'drawing' or 'print'
  * URL query parameter `?beginYear=xxxx&endYear=xxxx&page=x&pagesize=5`
@@ -479,7 +506,9 @@ module.exports = {
     artworkInfo,
     similarArtworks,
     filterSearch,
-    naughtySearch,
+    keywordSearch,
+    naughtySearchByHeight,
+    naughtySearchByBirthYear,
     analysisOverview,
     analysisByType,
     portraitsAcrossTime

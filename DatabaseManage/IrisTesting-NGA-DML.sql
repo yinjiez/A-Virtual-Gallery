@@ -75,14 +75,14 @@ WHERE O.beginYear >= 1900 AND O.endYear <= 1920;
 /* -----------------------------------------------------------*/
 /* -------------- Search keyword: Artist Name  --------------*/
 /* -----------------------------------------------------------*/
-SELECT O.title, O.attribution, C.beginYear, O.endYear, O.objectID, OI.thumbURL
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_constituents OC
                 JOIN constituents C
                 JOIN objects_images OI
     ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
 WHERE (O.attribution LIKE '%Picasso%' OR O.attributionInverted LIKE '%Picasso%' OR C.lastName LIKE '%Picasso%'
     OR C.preferredDisplayName LIKE '%Picasso%' OR C.forwardDisplayName LIKE '%Picasso%')
-ORDER BY O.attribution, C.lastName, C.beginYear, O.title;
+ORDER BY O.attribution, C.lastName, O.endYear, O.title;
 
 
 /*
@@ -104,6 +104,21 @@ SELECT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
 WHERE (O.title LIKE '%Portrait%')
 ORDER BY O.title, O.attribution;
+
+
+/* --------------------------------------------------------------------------*/
+/* -------------- Search keyword: Artwork Title + Artist Name --------------*/
+/* -------------------------------------------------------------------------*/
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_constituents OC
+                JOIN constituents C
+                JOIN objects_images OI
+    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
+WHERE (O.title LIKE 'The%') AND
+      (O.attribution LIKE '%Picasso%' OR O.attributionInverted LIKE '%Picasso%' OR
+       C.lastName LIKE '%Picasso%' OR C.preferredDisplayName LIKE '%Picasso%' OR
+       C.forwardDisplayName LIKE '%Picasso%')
+ORDER BY O.attribution, C.lastName, O.endYear, O.title;
 
 /* --------------------------------------------------------------*/
 /* ------- Find Specific Artwork by its unique objectID ---------*/

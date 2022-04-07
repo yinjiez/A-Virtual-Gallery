@@ -34,30 +34,31 @@ app.get('/similarArtworks', routes.similarArtworks);
 // ############# YINJIE ##################
 // #######################################
 // Route 4 - register as GET 
-app.get('/search/filter', routes.filterSearch);
+app.get('/search/byFilter', routes.filterSearch);
+// /search/filter?Nationality=xxx&name=xxx <== Query Param
+// Route 5 - register as GET 
+app.get('/search/byKeyword', routes.keywordSearch);
 // /search/filter?Nationality=xxx&name=xxx <== Query Param
 
-
-// #######################################
-// ############# YINJIE ##################
-// #######################################
-// Route 5 - register as GET 
-app.get('/search/naughty/:searchType', routes.naughtySearch);
-// router param:  searchType = height, or searchType = birthYear
+// Route 6 - register as GET 
+app.get('/search/naughtyByHeight', routes.naughtySearchByHeight);
 // query param: ?height=
+
+// Route 7 - register as GET 
+app.get('/search/naughtyByBirthYear', routes.naughtySearchByBirthYear);
 // query param: ?birthYear=
 
 
 // #######################################
 // ############# IRIS ####################
 // #######################################
-// Route 6 - register as GET 
+// Route 8 - register as GET 
 app.get('/analysis/analysisOverview', routes.analysisOverview);
 
-// Route 7 - register as GET 
+// Route 9 - register as GET 
 app.get('/analysis/analysisByType/:analysisType', routes.analysisByType);
 
-// Route 8 - register as GET 
+// Route 10 - register as GET 
 app.get('/analysis/portraitsAcrossTime/:artworkClass', routes.portraitsAcrossTime);
 
 
