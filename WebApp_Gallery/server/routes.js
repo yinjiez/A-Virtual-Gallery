@@ -389,11 +389,11 @@ async function naughtySearchByHeight(req, res) {
  * Route 9 (handler) - analysisByType
  * ***************************************
  * front-end will prompt user to specify whcih type of analysis he/she wants to check
+ * this function will return, in descending order, most popular terms under the analysis category
  * analysis types: Style, School, Theme, Technique, Keyword, Place Executed
  * Note: single space in URL's route parameter needs to be encoded as `%20` 
  * ex. URL http://localhost:8080/analysis/analysisByType/Place%20Executed
  * ex. URL (pagination) http://localhost:8080/analysis/analysisByType/Place%20Executed?page=2&pageszie=10
-
  */
  async function analysisByType(req, res) {
     
