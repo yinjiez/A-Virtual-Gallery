@@ -2,7 +2,7 @@ const express = require('express');
 const mysql      = require('mysql');
 var cors = require('cors')
 
-const routes = require('./routes')
+const routes = require('./routes') // import (bridge) to use the functions defined in `routes.js` file
 const config = require('./config.json')
 
 const app = express();
@@ -25,9 +25,7 @@ app.get('/home', routes.galleryOverview);
 app.get('/artwork', routes.artworkInfo);
 
 // Route 3 - register as GET 
-// these two routes are interchangable
 app.get('/artwork/similarArtworks', routes.similarArtworks);
-app.get('/similarArtworks', routes.similarArtworks);
 
 
 // #######################################
@@ -35,10 +33,11 @@ app.get('/similarArtworks', routes.similarArtworks);
 // #######################################
 // Route 4 - register as GET 
 app.get('/search/byFilter', routes.filterSearch);
-// /search/filter?Nationality=xxx&name=xxx <== Query Param
+// URL format: /search/byFilter?nationality=xxxx&style=xxxx&beginYear=xxxx&endYear=xxxx&classification=xxxx <== Query Param
+
 // Route 5 - register as GET 
 app.get('/search/byKeyword', routes.keywordSearch);
-// /search/filter?Nationality=xxx&name=xxx <== Query Param
+// URL format: /search/byKeyword?artworkTitle=xxxx&artistName=xxxx  <== Query Param
 
 // Route 6 - register as GET 
 app.get('/search/naughtyByHeight', routes.naughtySearchByHeight);

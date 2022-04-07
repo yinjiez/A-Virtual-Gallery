@@ -111,8 +111,9 @@ async function artworkInfo(req, res) {
  * ***************************************
  * query parameter `objectID`
  * ****************************************
- * recommand similar artwork by 
- * URL format (with query parameter): URL: /localhost:8080/artwork/similarArtworks?id=xx  
+ * recommand similar artwork by primary and secondary similarities 
+ * 
+ * URL format (with query parameter): /localhost:8080/artwork/similarArtworks?id=xx  
  * ex. URL: http://localhost:8080/artwork/similarArtworks?id=0
  */
  async function similarArtworks(req, res) {
@@ -427,6 +428,7 @@ async function naughtySearchByHeight(req, res) {
                 }
             }
         );
+
     } else {
         // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
         
@@ -497,7 +499,6 @@ async function naughtySearchByHeight(req, res) {
     }
 
 };
-
 
 
 
