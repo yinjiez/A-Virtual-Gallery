@@ -145,7 +145,7 @@ SELECT C.preferredDisplayName,OC.displayOrder, C.displayDate, C.visualBrowserNat
 FROM objects_constituents OC JOIN constituents C ON OC.constituentID = C.constituentID
 WHERE OC.objectID = 0
 ORDER BY displayOrder;
-#3) get the related semantic terms to this artwork (for recommendation by similarity)
+# 3) get the related semantic terms to this artwork (for recommendation by similarity)
 SELECT OT.termType, OT.term
 FROM objects_terms OT
 WHERE OT.objectID = 0

@@ -223,9 +223,74 @@ async function artworkInfo(req, res) {
  * Route 4 (handler) - filterSearch
  * ***************************************
  * search relavent artworks by a variety of filters: artists's
+ * ex. URL http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting
+ * ex. URL (pagination) http://localhost:8080/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting&page=2&pageszie=10
  */
  async function filterSearch(req, res) {
-    return res.json({error: "Not implemented"});
+    //1) fetch Route Paramter from {URL parameter portion}
+    const nationality = req.params.nationality ? req.params.nationality : 'American' // default nationality is American
+    const style = req.params.style ? req.params.style : 'Impressionist' // default style is Impressionist
+    const beginYear = req.params.beginYear ? req.params.beginYear : 1000// default beginYear is 1000
+    const endYear = req.params.endYear ? req.params.endYear : 1899 // default endYear is 1899
+    const classfication = req.params.classfication ? req.params.classfication : 'painting' // default classfication is painting
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+        JOIN constituents C
+        JOIN objects_images OI
+        JOIN objects_terms OT
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND (OT.term LIKE '%${style}%' AND OT.termType = 'Style')
+            AND (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND (O.classification LIKE '%${classfication}%')
+        ORDER BY O.attribution, C.lastName, O.endYear, O.title
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+        JOIN constituents C
+        JOIN objects_images OI
+        JOIN objects_terms OT
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND (OT.term LIKE '%${style}%' AND OT.termType = 'Style')
+            AND (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND (O.classification LIKE '%${classfication}%')
+        ORDER BY O.attribution, C.lastName, O.endYear, O.title;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
  };
 
 
@@ -236,9 +301,74 @@ async function artworkInfo(req, res) {
  * Route 5 (handler) - keywordSearch
  * ***************************************
  * search relavent artworks by artwork's title OR/AND artist's name
+ * Note: single space in URL's route parameter needs to be encoded as `%20`
+ * ex. URL http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon
+ * ex. URL (pagination) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon&page=2&pageszie=10
  */
  async function keywordSearch(req, res) {
-    return res.json({error: "Not implemented"});
+    //1) fetch Route Paramter from {URL parameter portion}
+    const artworkTitle = req.params.artworkTitle ? req.params.artworkTitle : 'American Flamingo' // default artworkTitle is American Flamingo
+    const artistName = req.params.artistName ? req.params.artistName : 'Robert Havell after John James Audubon' // default artistName is Robert Havell after John James Audubon
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+        JOIN constituents C
+        JOIN objects_images OI
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
+        WHERE (O.title LIKE '%${artworkTitle}%') AND
+        (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
+        C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
+        C.forwardDisplayName LIKE '%${artistName}%')
+        ORDER BY O.attribution, C.lastName, O.endYear, O.title
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+        JOIN constituents C
+        JOIN objects_images OI
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
+        WHERE (O.title LIKE '%${artworkTitle}%') AND
+        (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
+        C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
+        C.forwardDisplayName LIKE '%${artistName}%')
+        ORDER BY O.attribution, C.lastName, O.endYear, O.title;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
  };
 
 
