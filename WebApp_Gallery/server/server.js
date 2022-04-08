@@ -39,8 +39,8 @@ app.get('/search/filter', routes.filterSearch);
 // ############# YINJIE ##################
 // #######################################
 // Route 5 - register as GET 
-app.get('/search/naughty/:searchType', routes.naughtySearch);
-// router param:  searchType = height, or searchType = birthYear
+app.get('/search/naughtySearchByHeight', routes.naughtySearchHeight);
+app.get('/search/naughtySearchByBirthYear', routes.naughtySearchBirthYear);
 // query param: ?height=
 // query param: ?birthYear=
 

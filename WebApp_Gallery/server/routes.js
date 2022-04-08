@@ -147,18 +147,141 @@ async function artworkInfo(req, res) {
 
 
  
- // #######################################
+// #######################################
 // ############# YINJIE ##################
 // #######################################
 /** **************************************
- * Route 5 (handler) - naughtySearch
+ * Route 5.1 (handler) - naughtySearch_height
  * ***************************************
- * naughty search by height, OR naughty search by birthYear
+ * naughty search by height
+ * ex. URL http://localhost:8080/search/naughtySearchByHeight?height=170
+ * ex. URL (pagination) http://localhost:8080/search/naughtySearchByHeight?height=170&page=2&pageszie=10
  */
-async function naughtySearch(req, res) {
-    return res.json({error: "Not implemented"});
+async function naughtySearchHeight(req, res) {
+    //1) fetch Route Paramter from {URL parameter portion}
+    const height = req.params.height ? req.params.height : 170 // default height is 170
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS('${height}'-OD.dimension)
+        FROM objects O JOIN objects_images OI
+        JOIN objects_dimensions OD
+        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
+        ORDER BY ABS('${height}'-OD.dimension), O.title   
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS('${height}'-OD.dimension)
+        FROM objects O JOIN objects_images OI
+        JOIN objects_dimensions OD
+        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
+        ORDER BY ABS('${height}'-OD.dimension), O.title;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
 };
 
+// #######################################
+// ############# YINJIE ##################
+// #######################################
+/** **************************************
+ * Route 5.2 (handler) - naughtySearch_birthYear
+ * ***************************************
+ * naughty search by birthYear
+ * ex. URL http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1999
+ * ex. URL (pagination) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1999&backYear=100&page=2&pageszie=10
+ */
+ async function naughtySearchBirthYear(req, res) {
+    //1) fetch Route Paramter from {URL parameter portion}
+    const birthYear = req.params.birthYear ? req.params.birthYear : 1999 // default birthYear is 1999
+    //2) fetch backyear from client end
+    const backYear = req.params.backYear ? req.params.backYear : 100 // default backYear is -100
+    //3) calculate year difference
+    const yearDif = birthYear - backYear
+    //4) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //5) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS('${yearDif}'-O.endYear), OI.thumbURL, OD.dimension
+        FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
+        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+        ORDER BY ABS('${yearDif}'-O.endYear), OD.dimension DESC   
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS('${yearDif}'-O.endYear), OI.thumbURL, OD.dimension
+        FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
+        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+        ORDER BY ABS('${yearDif}'-O.endYear), OD.dimension DESC;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+};
 
 /** **************************************
  * Route 6 (handler) - analysisOverview
@@ -274,7 +397,8 @@ module.exports = {
     artworkInfo,
     similarArtworks,
     filterSearch,
-    naughtySearch,
+    naughtySearchHeight,
+    naughtySearchBirthYear,
     analysisOverview,
     analysisByType,
     portraitsAcrossTime
