@@ -2,11 +2,14 @@ const express = require('express');
 const mysql      = require('mysql');
 var cors = require('cors')
 
-
-const routes = require('./routes')
+const routes = require('./routes') // import (bridge) to use the functions defined in `routes.js` file
 const config = require('./config.json')
 
 const app = express();
+
+// #######################################
+// ############# IRIS ####################
+// #######################################
 
 /** **************************************
  * Iris Comment: Same as HW2, don't change
@@ -19,43 +22,43 @@ app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 app.get('/home', routes.galleryOverview);
 
 // Route 2 - register as GET 
-app.get('/artwork/:objectID', routes.artworkInfo);
+app.get('/artwork', routes.artworkInfo);
 
 // Route 3 - register as GET 
-// these two routes are interchangable
-app.get('/artwork/:objectID/similarArtworks', routes.similarArtworks);
-app.get('/similarArtworks', routes.similarArtworks);
+app.get('/artwork/similarArtworks', routes.similarArtworks);
 
 
 // #######################################
 // ############# YINJIE ##################
 // #######################################
 // Route 4 - register as GET 
-app.get('/search/filter', routes.filterSearch);
-// /search/filter?Nationality=xxx&name=xxx <== Query Param
+app.get('/search/byFilter', routes.filterSearch);
+// URL format: /search/byFilter?nationality=xxxx&style=xxxx&beginYear=xxxx&endYear=xxxx&classification=xxxx <== Query Param
 
-
-// #######################################
-// ############# YINJIE ##################
-// #######################################
 // Route 5 - register as GET 
+app.get('/search/byKeyword', routes.keywordSearch);
+// URL format: /search/byKeyword?artworkTitle=xxxx&artistName=xxxx  <== Query Param
+
+// Route 6 - register as GET 
 app.get('/search/naughtySearchByHeight', routes.naughtySearchHeight);
-app.get('/search/naughtySearchByBirthYear', routes.naughtySearchBirthYear);
 // query param: ?height=
+
+// Route 7 - register as GET 
+app.get('/search/naughtySearchByBirthYear', routes.naughtySearchBirthYear);
 // query param: ?birthYear=
 
 
 // #######################################
 // ############# IRIS ####################
 // #######################################
-// Route 6 - register as GET 
+// Route 8 - register as GET 
 app.get('/analysis/analysisOverview', routes.analysisOverview);
 
-// Route 7 - register as GET 
+// Route 9 - register as GET 
 app.get('/analysis/analysisByType/:analysisType', routes.analysisByType);
 
-// Route 8 - register as GET 
-app.get('/analysis/portraitsAcrossTime', routes.portraitsAcrossTime);
+// Route 10 - register as GET 
+app.get('/analysis/portraitsAcrossTime/:artworkClass', routes.portraitsAcrossTime);
 
 
 // Iris Comment: Same as HW2, don't change-----------------------

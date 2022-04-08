@@ -75,14 +75,14 @@ WHERE O.beginYear >= 1900 AND O.endYear <= 1920;
 /* -----------------------------------------------------------*/
 /* -------------- Search keyword: Artist Name  --------------*/
 /* -----------------------------------------------------------*/
-SELECT O.title, O.attribution, C.beginYear, O.endYear, O.objectID, OI.thumbURL
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_constituents OC
                 JOIN constituents C
                 JOIN objects_images OI
     ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
 WHERE (O.attribution LIKE '%Picasso%' OR O.attributionInverted LIKE '%Picasso%' OR C.lastName LIKE '%Picasso%'
     OR C.preferredDisplayName LIKE '%Picasso%' OR C.forwardDisplayName LIKE '%Picasso%')
-ORDER BY O.attribution, C.lastName, C.beginYear, O.title;
+ORDER BY O.attribution, C.lastName, O.endYear, O.title;
 
 
 /*
@@ -104,6 +104,21 @@ SELECT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
 WHERE (O.title LIKE '%Portrait%')
 ORDER BY O.title, O.attribution;
+
+
+/* --------------------------------------------------------------------------*/
+/* -------------- Search keyword: Artwork Title + Artist Name --------------*/
+/* -------------------------------------------------------------------------*/
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_constituents OC
+                JOIN constituents C
+                JOIN objects_images OI
+    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
+WHERE (O.title LIKE 'The%') AND
+      (O.attribution LIKE '%Picasso%' OR O.attributionInverted LIKE '%Picasso%' OR
+       C.lastName LIKE '%Picasso%' OR C.preferredDisplayName LIKE '%Picasso%' OR
+       C.forwardDisplayName LIKE '%Picasso%')
+ORDER BY O.attribution, C.lastName, O.endYear, O.title;
 
 /* --------------------------------------------------------------*/
 /* ------- Find Specific Artwork by its unique objectID ---------*/
@@ -135,6 +150,14 @@ SELECT OT.termType, OT.term
 FROM objects_terms OT
 WHERE OT.objectID = 0
 ORDER BY termType;
+
+
+
+-- find the artist's ID ----------------------
+SELECT objectID, constituentID, displayOrder
+FROM objects_constituents
+WHERE objectID = 32572
+ORDER BY displayOrder;
 
 /* -----------------------------------------------------------*/
 /* --------------- Recommend by Similarity  ------------------*/
@@ -247,10 +270,95 @@ ORDER BY ABS(1989-0-O.endYear), OD.dimension DESC ;
 /* -----------------------------------------------------------*/
 /* --------------- Analysis Types Overview------------------*/
 /* -----------------------------------------------------------*/
-SELECT OT.termType, COUNT(*) AS termTypeCounts
+-- 1) showing term counts for each category of analysis. i.e. Style, School, Theme, Technique, Keyword, Place Executed,
+(SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
 FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
-GROUP BY OT.termType
-ORDER BY COUNT(*) DESC;
+WHERE OT.termType = 'Style')
+UNION
+(SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
+FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+WHERE OT.termType = 'School')
+UNION
+(SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
+FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+WHERE OT.termType = 'Theme')
+UNION
+(SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
+FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+WHERE OT.termType = 'Keyword')
+UNION
+(SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
+FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+WHERE OT.termType = 'Technique')
+UNION
+(SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
+FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+WHERE OT.termType = 'Place Executed');
+
+
+-- This is showing how many artworks are associated with each Big analysis category
+SELECT OT.termType, OT.term, COUNT(*) AS termTypeCounts
+FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+GROUP BY OT.termType, OT.term
+ORDER BY OT.termType, COUNT(OT.term) DESC;
+
+
+-- 2) showing top 5 popular words under each category
+(
+    SELECT OT.term, COUNT(*) AS StyleCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    WHERE OT.termType = 'Style'
+    GROUP BY OT.term
+    ORDER BY COUNT(*) DESC
+    LIMIT 5
+)
+UNION
+(
+    SELECT OT.term, COUNT(*) AS SchoolCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    WHERE OT.termType = 'School'
+    GROUP BY OT.term
+    ORDER BY COUNT(*) DESC
+    LIMIT 5
+)
+UNION
+(
+    SELECT OT.term, COUNT(*) AS TechniqueCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    WHERE OT.termType = 'Technique'
+    GROUP BY OT.term
+    ORDER BY COUNT(*) DESC
+    LIMIT 5
+)
+UNION
+(
+    SELECT OT.term, COUNT(*) AS ThemeCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    WHERE OT.termType = 'Theme'
+    GROUP BY OT.term
+    ORDER BY COUNT(*) DESC
+    LIMIT 5
+)
+UNION
+(
+    SELECT OT.term, COUNT(*) AS KeywordCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    WHERE OT.termType = 'Keyword'
+    GROUP BY OT.term
+    ORDER BY COUNT(*) DESC
+    LIMIT 5
+)
+UNION
+(
+    SELECT OT.term, COUNT(*) AS PlaceExecutedCounts
+    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    WHERE OT.termType = 'Place Executed'
+    GROUP BY OT.term
+    ORDER BY COUNT(*) DESC
+    LIMIT 5
+);
+
+
 
 
 /* -----------------------------------------------------------*/
