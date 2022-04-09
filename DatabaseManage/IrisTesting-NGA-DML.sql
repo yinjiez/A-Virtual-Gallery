@@ -68,9 +68,12 @@ WHERE OT.term = 'painted surface' AND OT.termType = 'Technique'; # 500+ art-obje
 /* -----------------------------------------------------------*/
 SELECT O.title, O.attribution, O.beginYear, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
-WHERE O.beginYear >= 1900 AND O.endYear <= 1920;
+WHERE O.beginYear >= 0 AND O.endYear <= 2022;
 # WHERE O.beginYear >= 700 AND O.endYear <= 800; # Edge-case year range 700~800, no art-object returned
 
+SELECT COUNT(*)
+FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
+WHERE O.beginYear >= 0 AND O.endYear <= 2022;
 
 /* -----------------------------------------------------------*/
 /* -------------- Search keyword: Artist Name  --------------*/

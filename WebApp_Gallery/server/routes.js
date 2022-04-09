@@ -207,8 +207,9 @@ async function artworkInfo(req, res) {
     const similar2 = await connection.query(queryStr2).catch(err => {throw err});
     
     // 3) if there is no similar artwork found (based on all the above criteria), we return this message
+    // to FRONT-END Note: if results_P1 == "NOTHING", meaning there is nothing similar to be recommanded
     if ( !similar1 && !similar2 ) {
-        return res.json ({results_P1 : "this is the only artwork of its kind"});
+        return res.json ({results_P1 : "NOTHING"});
     }
 
     // 4) return the similar artworks
@@ -222,10 +223,99 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 4 (handler) - filterSearch
  * ***************************************
- * search relavent artworks by a variety of filters: artists's
+ * search relavent artworks by a variety of filters:
+ * result will be returned by the following ordering: endYear >> title >> attribution >> lastName
+ * ex. URL (default)      http://localhost:8080/search/byFilter
+ * ex. URL (default+page) http://localhost:8080/search/byFilter?page=1&pagesize=20 
+ * ex. URL (full filters) http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting
+ * ex. URL (pagination)   http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting&page=2&pagesize=10
  */
  async function filterSearch(req, res) {
-    return res.json({error: "Not implemented"});
+    //1) check & fetch Query Paramter
+
+    const nationality = req.query.nationality ? req.query.nationality : '%' // default match for all
+    const style = req.query.style ? req.query.style : '%' // default match for all
+    const classfication = req.query.classfication ? req.query.classfication : '%' // match for all
+
+    // check if begin, end year are numbers
+    var beginYear = null;
+    if ( req.query.beginYear && !isNaN(req.query.beginYear)) {
+        beginYear = req.query.beginYear;
+    } else {
+        beginYear = 0; // default beginYear is 0
+    }
+    var endYear = null;
+    if ( req.query.endYear && !isNaN(req.query.endYear)) {
+        endYear = req.query.endYear;
+    } else {
+        endYear = 2022; // default endYear is 2022
+    }
+   
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    // This is the case where page is defined. ---------------------
+    if (req.query.page && !isNaN(req.query.page)) {
+        
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+            JOIN constituents C
+            JOIN objects_images OI
+            JOIN objects_terms OT
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND 
+                O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND 
+                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND 
+                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND 
+                (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution, C.lastName
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+      
+    // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+    } else { 
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+            JOIN constituents C
+            JOIN objects_images OI
+            JOIN objects_terms OT
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND 
+                O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND 
+                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND 
+                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND 
+                (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution, C.lastName
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
  };
 
 
@@ -236,36 +326,224 @@ async function artworkInfo(req, res) {
  * Route 5 (handler) - keywordSearch
  * ***************************************
  * search relavent artworks by artwork's title OR/AND artist's name
+ * Note: single space in URL's route parameter needs to be encoded as `%20`
+ * ex. URL (defualt) http://localhost:8080/search/byKeyword
+ * ex. URL (normal case) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell
+ * ex. URL (full) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon
+ * ex. URL (pagination) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon&page=1&pagesize=10
  */
  async function keywordSearch(req, res) {
-    return res.json({error: "Not implemented"});
- };
+    //1) fetch Query Paramter from {URL parameter portion}
+    const artworkTitle = req.query.artworkTitle ? req.query.artworkTitle : '%' // default match for all
+    const artistName = req.query.artistName ? req.query.artistName : '%' // default match for all
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
 
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+                JOIN constituents C
+                JOIN objects_images OI
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
+        WHERE (O.title LIKE '%${artworkTitle}%') AND
+            (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
+            C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
+            C.forwardDisplayName LIKE '%${artistName}%')
+        ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_constituents OC
+        JOIN constituents C
+        JOIN objects_images OI
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
+        WHERE (O.title LIKE '%${artworkTitle}%') AND
+                (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
+                C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
+                C.forwardDisplayName LIKE '%${artistName}%')
+        ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+ };
 
  
 // #######################################
 // ############# YINJIE ##################
 // #######################################
 /** **************************************
- * Route 6 (handler) - naughtySearchByHeight
+ * Route 6 (handler) - naughtySearchHeight
  * ***************************************
- * naughty search by user's height
+ * naughty search "painting" artworks by matching user's height (cm) with artwork's height (cm)
+ * ex. URL (defualt) http://localhost:8080/search/naughtySearchByHeight
+ * ex. URL (height)  http://localhost:8080/search/naughtySearchByHeight?height=185
+ * ex. URL (pagination) http://localhost:8080/search/naughtySearchByHeight?height=185&page=2&pagesize=10
  */
-async function naughtySearchByHeight(req, res) {
-    return res.json({error: "Not implemented"});
+ async function naughtySearchHeight(req, res) {
+    //1) fetch Route Paramter from {URL parameter portion}
+    const height = req.query.height ? req.query.height : 170 // default height is 170
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
+        FROM objects O JOIN objects_images OI
+        JOIN objects_dimensions OD
+        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
+        ORDER BY ABS(${height}-OD.dimension), O.title   
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
+        FROM objects O JOIN objects_images OI
+        JOIN objects_dimensions OD
+        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
+        ORDER BY ABS(${height}-OD.dimension), O.title
+        LIMIT 30;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
 };
+
 
 
 // #######################################
 // ############# YINJIE ##################
 // #######################################
 /** **************************************
- * Route 7 (handler) - naughtySearchByBirthYear
+ * Route 7 (handler) - naughtySearchBirthYear
  * ***************************************
- * naughty search by user's birthYear
+ * naughty search artworks by matching with user's birthYear,
+ * return the artwork (of all kinds) produced in the birthYear in height descending order (tall --> short)
+ * ex. URL (default) http://localhost:8080/search/naughtySearchByBirthYear
+ * ex. URL (year)    http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1986
+ * ex. URL (pagination) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1986&page=2&pageszie=10
+ * Edge Case Safe:
+ * ex. (birthYear non-number) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=iris
  */
- async function naughtySearchByBirthYear(req, res) {
-    return res.json({error: "Not implemented"});
+ async function naughtySearchBirthYear(req, res) {
+    
+    //1) check if query-paramter `birthYear` is a number and fetch it 
+    var birthYear = null;
+    if ( req.query.birthYear && !isNaN(req.query.birthYear)) {
+        birthYear = req.query.birthYear;
+    } else {
+        birthYear = 1999; // default birthYear is 1999
+    }
+    
+    //2) fetch Query Parameter "page" & "pagesize"
+    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    //3) calculate offsets
+    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+
+
+    if (req.query.page && !isNaN(req.query.page)) {
+        // This is the case where page is defined.
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
+        FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
+            ON O.objectID = OI.objectID AND O.objectID = OD.objectID
+        WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+        ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC   
+        LIMIT ${offset}, ${limit};
+        `;
+        
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.json({ error: error});
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    } else {
+        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
+        
+        let queryStr = `
+        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
+        FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
+            ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+        WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+        ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC;
+        `;
+
+        connection.query(queryStr, 
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
 };
 
 
@@ -508,8 +786,8 @@ module.exports = {
     similarArtworks,
     filterSearch,
     keywordSearch,
-    naughtySearchByHeight,
-    naughtySearchByBirthYear,
+    naughtySearchHeight,
+    naughtySearchBirthYear,
     analysisOverview,
     analysisByType,
     portraitsAcrossTime
