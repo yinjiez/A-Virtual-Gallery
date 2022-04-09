@@ -54,15 +54,15 @@ const getSearchByKeyword = async (artworkTitle, artistName, page, pagesize) => {
 
 // Fetcher 6
 const getNaughtyByHeight = async (height, page, pagesize) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/search/naughtyByHeight?height=${height}&page=${page}&pagesize=${pagesize}`, {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/search/naughtySearchByHeight?height=${height}&page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
     })
     return res.json()
 }
 
 // Fetcher 7
-const getNaughtyByBirthYear = async (birthYear, backYear, page, pagesize) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/search/naughtyByBirthYear?birthYear=${birthYear}&backYear=${backYear}&page=${page}&pagesize=${pagesize}`, {
+const getNaughtyByBirthYear = async (birthYear, page, pagesize) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/search/naughtySearchByBirthYear?birthYear=${birthYear}&page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
     })
     return res.json()
