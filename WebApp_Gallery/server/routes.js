@@ -109,7 +109,7 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 3 (handler) - similarArtworks
  * ***************************************
- * query parameter `objectID`
+ * query parameter `?objectID=`
  * ****************************************
  * recommand similar artwork by primary and secondary similarities 
  * 
@@ -226,17 +226,28 @@ async function artworkInfo(req, res) {
  * search relavent artworks by a variety of filters:
  * result will be returned by the following ordering: endYear >> title >> attribution >> lastName
  * ex. URL (default)      http://localhost:8080/search/byFilter
- * ex. URL (default+page) http://localhost:8080/search/byFilter?page=1&pagesize=20 
- * ex. URL (full filters) http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting
- * ex. URL (pagination)   http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting&page=2&pagesize=10
+ * 
+ * Normal Filtering Cases: 
+ * Case1: full filters 
+ * ex. http://localhost:8080/search/byFilter?nationality=French&style=Impressionist&beginYear=1000&endYear=2000&classification=painting&page=1&pagesize=20   
+ * Case2: have “style”, miss “nationality”
+ * ex. http://localhost:8080/search/byFilter?nationality=&style=Impressionist&beginYear=1000&endYear=2000&classification=painting&page=2&pagesize=20   
+ * Case3: have “nationality”, miss “style”
+ * ex. http://localhost:8080/search/byFilter?nationality=Japanese&style=&beginYear=1000&endYear=2000&classification=painting&page=1&pagesize=20  
+ * Case4: miss “nationality”, miss “style”
+ * ex. http://localhost:8080/search/byFilter?nationality=&style=&beginYear=1000&endYear=2000&classification=painting&page=1&pagesize=20  
+ * 
+ * Edge Case:
+ * ex. invalid year inputs: http://localhost:8080/search/byFilter?nationality=French&style=Impressionist&beginYear=iris&endYear=ma&classification=painting&page=&pagesize=   
  */
  async function filterSearch(req, res) {
-    //1) check & fetch Query Paramter
-
-    const nationality = req.query.nationality ? req.query.nationality : '%' // default match for all
-    const style = req.query.style ? req.query.style : '%' // default match for all
-    const classfication = req.query.classfication ? req.query.classfication : '%' // match for all
-
+    
+    // #####################################################################################
+    // ##################################  SECTION 1  ######################################
+    // #####################################################################################
+    
+    //1) get these basic query parameters (these are always required for all cases)
+    var classfication = req.query.classfication ? req.query.classfication : '%' //default match for all classification
     // check if begin, end year are numbers
     var beginYear = null;
     if ( req.query.beginYear && !isNaN(req.query.beginYear)) {
@@ -250,72 +261,119 @@ async function artworkInfo(req, res) {
     } else {
         endYear = 2022; // default endYear is 2022
     }
-   
-    //2) fetch Query Parameter "page" & "pagesize"
-    const page = req.query.page //we assume user always enters valid page range: [1~n]
-    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
-    //3) calculate offsets
-    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
 
+    //2) initialize these variables, but needs more specific check for different query cases !!
+    var nationality = null; 
+    var style = null;   
 
-    // This is the case where page is defined. ---------------------
-    if (req.query.page && !isNaN(req.query.page)) {
-        
-        let queryStr = `
+    //3) fetch query parameter for pagination
+    const page = req.query.page ? req.query.page : 1            //defualt show 1st page, also assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10  //default 10 rows of query result per page display
+    const offset = (page - 1) * limit                           //(page-1) since query offset is 0-based-indexing
+
+    //4) initialize a var for hold query string
+    var queryStr = null;
+
+    // #####################################################################################
+    // ##################################  SECTION 2  ######################################
+    // #####################################################################################
+
+    /** **********************************************************************************************************
+     * Explaination for the purpose of casing:
+     * since filtering for "style", require the extra JOIN with "objects_terms" table,
+     * IMPORTANT NOTICE: many artworks do have have a "style" attribute, or do not have any associated term description, hence these artworks'objectID do not exist in "object_terms" table
+     * this joining could potentially result in the loss of a significant portion of artworks data
+     * Therefore, when the "style" filer is NOT applied (i.e. NULL), we use an alternative version of jointed relations
+     * -----------------------------------------
+     * similar idea for "nationality" filter, which requires the JOINs with "objects_constituents", "constituents",
+     * *********************************************************************************************************
+     */
+
+    /** *****************************
+     * CASE 1: having "style" filer AND "nationality" filter
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_constituents", "constituents", "objects_images", "objects_terms"
+     */
+    if (req.query.style && req.query.nationality) {
+        // if there is a truthy value for "style" & "nationality" query parameters
+        nationality = req.query.nationality;
+        style = req.query.style;
+        queryStr = `
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
             JOIN constituents C
             JOIN objects_images OI
             JOIN objects_terms OT
-            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND 
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
                 O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND 
-                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND 
-                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND 
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND
+                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND
+                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
                 (O.classification LIKE '%${classfication}%')
         ORDER BY O.endYear, O.title, O.attribution, C.lastName
         LIMIT ${offset}, ${limit};
         `;
-        
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    res.json({ error: error});
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-      
-    // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
-    } else { 
-        let queryStr = `
+    
+    /** *****************************
+     * CASE 2: having "style" filter, missing "nationality" filter,
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_images", "objects_terms"
+     */
+    } else if (req.query.style && !req.query.nationality){
+        style = req.query.style;
+        queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+                    ON O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND
+                        (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                        (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution
+        LIMIT ${offset}, ${limit};
+        `;
+    /** *****************************
+     * CASE 3: having "nationality" filter, missing "style" filter
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_constituents", "constituents", "objects_images"
+     */
+    } else if (!req.query.style && req.query.nationality){
+        nationality = req.query.nationality;
+        queryStr = `
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
-            JOIN constituents C
-            JOIN objects_images OI
-            JOIN objects_terms OT
-            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND 
-                O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND 
-                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND 
-                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND 
-                (O.classification LIKE '%${classfication}%')
+                    JOIN constituents C
+                    JOIN objects_images OI
+                    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
+                        O.objectID =OI.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND
+                        (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                        (O.classification LIKE '%${classfication}%')
         ORDER BY O.endYear, O.title, O.attribution, C.lastName
+        LIMIT ${offset}, ${limit};
         `;
-
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
+    /** *****************************
+     * CASE 4: missing "nationality" filter, missing "style" filter
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_constituents", "constituents", "objects_images"
+     */
+    } else if (!req.query.style && !req.query.nationality){
+        queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
+        WHERE (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution
+        LIMIT ${offset}, ${limit};
+        `;
     }
+
+
+    // #####################################################################################
+    // ##################################  SECTION 3  ######################################
+    // #####################################################################################
+
+    const filterResult = await connection.query(queryStr).catch(err => {throw err});
+    return res.json( {results: filterResult});
  };
 
 
