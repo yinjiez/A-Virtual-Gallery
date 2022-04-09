@@ -11,7 +11,7 @@ import {
 
 } from 'antd'
 
-import { getMatchSearch, getMatch } from '../fetcher'
+import { getArtwork, getSimilarArtworks } from '../fetcher'
 
 
 import MenuBar from '../components/MenuBar';
@@ -19,55 +19,32 @@ import MenuBar from '../components/MenuBar';
 const { Column, ColumnGroup } = Table;
 
 
-class MatchesPage extends React.Component {
+class ArtworkPage extends React.Component {
     constructor(props) {
         super(props)
-        this.state = {
-            awayQuery: "",
-            homeQuery: "",
-            matchesResults: [],
-            selectedMatchId: window.location.search ? window.location.search.substring(1).split('=')[1] : 0,
-            selectedMatchDetails: null
+            this.state = {
+            //getting object ID from url: ...artwork?id=${objectID}
+            //window.location.search: ?id=${objectID}
+            //substring(1): id=${objectID}
+            //after split: [id, objectID]; index 1 gets the object ID
+            objectID: window.location.search ? window.location.search.substring(1).split('=')[1] : 0,
+            artwork_P1: null,
+            artwork_P2: null,
+            artwork_P3: null,
+            similarDetails: null,
         }
-
-        this.handleAwayQueryChange = this.handleAwayQueryChange.bind(this)
-        this.handleHomeQueryChange = this.handleHomeQueryChange.bind(this)
-        this.updateSearchResults = this.updateSearchResults.bind(this)
-        this.goToMatch = this.goToMatch.bind(this)
-
-    }
-
-    handleAwayQueryChange(event) {
-        this.setState( {awayQuery: event.target.value} )
-    }
-
-    handleHomeQueryChange(event) {
-        // TASK 10: update state variables appropriately. See handleAwayQueryChange(event) for reference
-        this.setState( {homeQuery: event.target.value} );
-
-    }
-
-    goToMatch(matchId) {
-        window.location = `/matches?id=${matchId}`
-    }
-
-    updateSearchResults() {
-        //TASK 11: call getMatchSearch and update matchesResults in state. See componentDidMount() for a hint
-        getMatchSearch(this.state.homeQuery, this.state.awayQuery, null, null).then(res => {
-            this.setState({ matchesResults: res.results })
-        })
-
     }
 
     componentDidMount() {
-        getMatchSearch(this.state.homeQuery, this.state.awayQuery, null, null).then(res => {
-            this.setState({ matchesResults: res.results })
+        getArtwork(this.state.objectID).then(res => {
+            this.setState({objectID: res.results[0] })
         })
 
-        getMatch(this.state.selectedMatchId).then(res => {
-            this.setState({ selectedMatchDetails: res.results[0] })
+        getSimilarArtworks(this.state.objectID).then(res => {
+            this.setState({objectID: res.results[0] })
         })
     }
+
 
     render() {
         return (
