@@ -18,7 +18,7 @@ const getOverview = async () => {
 
 // Fetcher 2
 const getArtwork = async (objectID) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/artwork?id=${objectID}`, {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artwork?objectID=${objectID}`, {
         method: 'GET',
     })
     return res.json()
@@ -26,7 +26,7 @@ const getArtwork = async (objectID) => {
 
 // Fetcher 3
 const getSimilarArtworks = async (objectID) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/artwork/similarArtworks?id=${objectID}`, {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artwork/similarArtworks?objectID=${objectID}`, {
         method: 'GET',
     })
     return res.json()
