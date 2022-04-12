@@ -7,7 +7,8 @@ import {
     Col,
     Divider,
     Image,
-    Tag
+    Tag,
+    Typography
 
 } from 'antd'
 
@@ -160,47 +161,53 @@ class ArtworkPage extends React.Component {
                     />
                     </Col>
                     <Col span={12} style={{ textAlign: 'left' }}>
-                        <Divider orientation="left" orientationMargin="0">Title</Divider>
-                        <p>
-                            {this.state.P1.title}
-                        </p>
-                        <Divider orientation="left">Attribution</Divider>
-                        <p>
+                        {/* margin: top, right, bottom, left */}
+                        <Typography.Title level={2} style={{ margin: "20px 20px 20px 0px" }}>
+                        {this.state.P1.title}
+                        </Typography.Title>
+                        <Typography.Title level={4} italic="True" underline="True" style={{ margin: "20px 20px 20px 0px" }}>
                         {this.state.P1.attribution}
-                        </p>
-                        <Divider orientation="left">Medium</Divider>
+                        </Typography.Title>
+                        <th scope="row">Medium</th>
                         <p>
                         {this.state.P1.medium}
                         </p>
-                        <Divider orientation="left">Dimensions</Divider>
+                        <Divider orientation="left"></Divider>
+                        <th scope="row">Dimensions</th>
                         <p>
                         {this.state.P1.dimensions}
                         </p>
-                        <Divider orientation="left">Classfication</Divider>
+                        <Divider orientation="left"></Divider>
+                        <th scope="row">Classfication</th>
                         <p>
                         {this.state.P1.classification}
                         </p>
-                        <Divider orientation="left">Series</Divider>
+                        <Divider orientation="left"></Divider>
+                        <th scope="row">Series</th>
                         <p>
                         {this.state.P1.series}
                         </p>
-                        <Divider orientation="left" >Portfolio</Divider>
+                        <Divider orientation="left" ></Divider>
+                        <th scope="row">Portfolio</th>
                         <p>
                         {this.state.P1.portfolio}
                         </p>
-                        <Divider orientation="left">Volume</Divider>
+                        <Divider orientation="left"></Divider>
+                        <th scope="row">Volume</th>
                         <p>
                         {this.state.P1.volume}
                         </p>
-                        <Divider orientation="left">Artists</Divider>
+                        <Divider orientation="left"></Divider>
+                        <th scope="row">Artists</th>
                         <text>
                         {this.state.P2_artist_1.preferredDisplayName}, {this.state.P2_artist_1.displayDate}, {this.state.P2_artist_1.visualBrowserNationality}</text><br/>
                         {this.state.P2_artist_2.preferredDisplayName && <text>
                         {this.state.P2_artist_2.preferredDisplayName}, {this.state.P2_artist_2.displayDate}, {this.state.P2_artist_2.visualBrowserNationality}</text>}<br/>
                         {this.state.P2_artist_3.preferredDisplayName && <text>
                         {this.state.P2_artist_3.preferredDisplayName}, {this.state.P2_artist_3.displayDate}, {this.state.P2_artist_3.visualBrowserNationality}, Et al.</text>}                      
-                        <Divider orientation="left">Keywords</Divider>
-                        <ul>
+                        <Divider orientation="left"></Divider>
+                        <th scope="row">Keywords</th>
+                        <ul style={{padding: 0}}>
                         {this.state.P3 && this.state.P3.map(term => <Tag color="purple" key={term}> {term} </Tag>)}
                         </ul>
                     </Col>
