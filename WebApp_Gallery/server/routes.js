@@ -276,8 +276,12 @@ async function artworkInfo(req, res) {
     // #####################################################################################
     // ##################################  SECTION 1  ######################################
     // #####################################################################################
-    
-    //1) get these basic query parameters (these are always required for all cases)
+    //1) guarding for invalid parameter values
+    if (isNaN(req.query.beginYear) || isNaN(req.query.endYear) || isNaN(req.query.page) || isNaN(req.query.pagesize)){
+        return res.json ({results :[]});
+    }
+
+    //2) get these basic query parameters (these are always required for all cases)
     var classfication = req.query.classfication ? req.query.classfication : '%' //default match for all classification
     // check if begin, end year are numbers
     var beginYear = null;
@@ -293,7 +297,7 @@ async function artworkInfo(req, res) {
         endYear = 2022; // default endYear is 2022
     }
 
-    //2) initialize these variables, but needs more specific check for different query cases !!
+    //3) initialize these variables, but needs more specific check for different query cases !!
     var nationality = null; 
     var style = null;   
 
@@ -422,19 +426,22 @@ async function artworkInfo(req, res) {
  * ex. URL (pagination) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon&page=1&pagesize=10
  */
  async function keywordSearch(req, res) {
+
+    //1) guarding for invalid parameter values
+    if ( isNaN(req.query.page) || isNaN(req.query.pagesize)) {
+        return res.json ({results :[]});
+    }
+
     //1) fetch Query Paramter from {URL parameter portion}
     const artworkTitle = req.query.artworkTitle ? req.query.artworkTitle : '%' // default match for all
     const artistName = req.query.artistName ? req.query.artistName : '%' // default match for all
     //2) fetch Query Parameter "page" & "pagesize"
-    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const page = req.query.page ? req.query.page : 1 //we assume user always enters valid page range: [1~n]
     const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
     //3) calculate offsets
     const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
 
-
-    if (req.query.page && !isNaN(req.query.page)) {
-        // This is the case where page is defined.
-        let queryStr = `
+    let queryStr = `
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
                 JOIN constituents C
@@ -458,33 +465,6 @@ async function artworkInfo(req, res) {
                 }
             }
         );
-    } else {
-        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
-        
-        let queryStr = `
-        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
-        FROM objects O JOIN objects_constituents OC
-        JOIN constituents C
-        JOIN objects_images OI
-        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
-        WHERE (O.title LIKE '%${artworkTitle}%') AND
-                (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
-                C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
-                C.forwardDisplayName LIKE '%${artistName}%')
-        ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear;
-        `;
-
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
  };
 
  
@@ -502,7 +482,7 @@ async function artworkInfo(req, res) {
  async function naughtySearchHeight(req, res) {
 
     // guarding for invalid parameter values
-    if (isNaN(req.query.height) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0 ){
+    if (isNaN(req.query.height) || isNaN(req.query.page) || isNaN(req.query.pagesize)){
         return res.json ({results :[]});
     }
     //1) fetch Route Paramter from {URL parameter portion}
@@ -554,7 +534,7 @@ async function artworkInfo(req, res) {
  async function naughtySearchBirthYear(req, res) {
     
     // guarding for invalid parameter values
-    if (isNaN(req.query.birthYear) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0){
+    if (isNaN(req.query.birthYear) || isNaN(req.query.page) || isNaN(req.query.pagesize)){
         return res.json ({results :[]});
     }
 
