@@ -54,7 +54,7 @@ const playerColumns = [
   }
 ];
 
-class HomePage extends React.Component {
+class LoginPage extends React.Component {
 
   constructor(props) {
     super(props)
