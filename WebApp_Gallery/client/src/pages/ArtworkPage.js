@@ -19,7 +19,6 @@ import MenuBar from '../components/MenuBar';
 
 const { Column, ColumnGroup } = Table;
 
-
 class ArtworkPage extends React.Component {
     constructor(props) {
         super(props)
@@ -38,7 +37,7 @@ class ArtworkPage extends React.Component {
             similarArtwork_2: [],
             similarArtwork_3: [],
             similarArtwork_4: [],
-            selectedObjectID: window.location.search ? window.location.search.substring(1).split('=')[1] : 0
+            selectedObjectID: window.location.search ? window.location.search.substring(1).split('=')[1] : 0,
 
         }
 
@@ -49,6 +48,7 @@ class ArtworkPage extends React.Component {
     goToArtwork(objectID) {
         window.location = `/artwork?objectID=${objectID}`
     }
+    
 
     updateArtwork() {
         getArtwork(this.state.selectedObjectID).then(res => {
@@ -121,7 +121,7 @@ class ArtworkPage extends React.Component {
         getSimilarArtworks(this.state.selectedObjectID).then(res => {
             if (res.results_P1 === "NOTHING"){
                 this.setState({similarArtworks: "This artwork is one of its kind!"})
-            } else if (res.results_P1 == null){
+            } else if (res.results_P1.length == 0){
                 this.setState({ similarArtwork_1: res.results_P2[0]})
                 if (res.results_P2.length > 3){
                     this.setState({ similarArtwork_4: res.results_P2[3]})
@@ -145,20 +145,17 @@ class ArtworkPage extends React.Component {
                 }
             }
         })
+
     }
 
-
+    
     render() {
         return (
             <div>
                 <MenuBar />
-                
                 <Row justify="space-around" align="middle">
                     <Col span={12} style={{textAlign: 'center'}}>
-                    <img
-                    width={600}
-                    src={this.state.P1.URL}
-                    />
+                    <img width={600} src={this.state.P1.URL}></img>
                     </Col>
                     <Col span={12} style={{ textAlign: 'left' }}>
                         {/* margin: top, right, bottom, left */}
@@ -168,36 +165,24 @@ class ArtworkPage extends React.Component {
                         <Typography.Title level={4} italic="True" underline="True" style={{ margin: "20px 20px 20px 0px" }}>
                         {this.state.P1.attribution}
                         </Typography.Title>
-                        <th scope="row">Medium</th>
-                        <p>
-                        {this.state.P1.medium}
-                        </p>
-                        <Divider orientation="left"></Divider>
-                        <th scope="row">Dimensions</th>
-                        <p>
-                        {this.state.P1.dimensions}
-                        </p>
-                        <Divider orientation="left"></Divider>
-                        <th scope="row">Classfication</th>
-                        <p>
-                        {this.state.P1.classification}
-                        </p>
-                        <Divider orientation="left"></Divider>
-                        <th scope="row">Series</th>
-                        <p>
-                        {this.state.P1.series}
-                        </p>
-                        <Divider orientation="left" ></Divider>
-                        <th scope="row">Portfolio</th>
-                        <p>
-                        {this.state.P1.portfolio}
-                        </p>
-                        <Divider orientation="left"></Divider>
-                        <th scope="row">Volume</th>
-                        <p>
-                        {this.state.P1.volume}
-                        </p>
-                        <Divider orientation="left"></Divider>
+                        {this.state.P1.medium && <div>
+                        <th scope="row">Medium</th><p>{this.state.P1.medium}</p><Divider></Divider>
+                        </div>}
+                        {this.state.P1.dimensions && <div>
+                        <th scope="row">Dimensions</th><p>{this.state.P1.dimensions}</p><Divider></Divider>
+                        </div>}
+                        {this.state.P1.classification && <div>
+                        <th scope="row">Classfication</th><p>{this.state.P1.classification}</p><Divider></Divider>
+                        </div>}
+                        {this.state.P1.series && <div>
+                        <th scope="row">Series</th><p>{this.state.P1.series}</p><Divider></Divider>
+                        </div>}
+                        {this.state.P1.portfolio && <div>
+                        <th scope="row">Portfolio</th><p>{this.state.P1.portfolio}</p><Divider></Divider>
+                        </div>}
+                        {this.state.P1.volume && <div>
+                        <th scope="row">Volume</th><p>{this.state.P1.volume}</p><Divider></Divider>
+                        </div>}
                         <th scope="row">Artists</th>
                         <text>
                         {this.state.P2_artist_1.preferredDisplayName}, {this.state.P2_artist_1.displayDate}, {this.state.P2_artist_1.visualBrowserNationality}</text><br/>
@@ -205,18 +190,17 @@ class ArtworkPage extends React.Component {
                         {this.state.P2_artist_2.preferredDisplayName}, {this.state.P2_artist_2.displayDate}, {this.state.P2_artist_2.visualBrowserNationality}</text>}<br/>
                         {this.state.P2_artist_3.preferredDisplayName && <text>
                         {this.state.P2_artist_3.preferredDisplayName}, {this.state.P2_artist_3.displayDate}, {this.state.P2_artist_3.visualBrowserNationality}, Et al.</text>}                      
-                        <Divider orientation="left"></Divider>
+                        <Divider></Divider>
+                        {this.state.P3 && <div>
                         <th scope="row">Keywords</th>
                         <ul style={{padding: 0}}>
                         {this.state.P3 && this.state.P3.map(term => <Tag color="purple" key={term}> {term} </Tag>)}
                         </ul>
+                        </div>}
                     </Col>
                 </Row>
                 <Row>
-                <Col span={24}> SWATCHES
-                
-                
-                
+                <Col span={24}>
                 </Col>
                 </Row>
                 <Row justify="space-around" align="middle">
