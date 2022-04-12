@@ -32,7 +32,7 @@ class ArtworkPage extends React.Component {
             P1: [],
             P2_artist_1: [],
             P2_artist_2: [],
-            P2_artist_3:[],
+            P2_artist_3: [],
             P3: [],
             similarArtwork_1: [],
             similarArtwork_2: [],
@@ -72,7 +72,7 @@ class ArtworkPage extends React.Component {
         getSimilarArtworks(this.state.selectedObjectID).then(res => {
             if (res.results_P1 === "NOTHING"){
                 this.setState({similarArtworks: "This artwork is one of its kind!"})
-            } else if (res.sesults_P1 == null){
+            } else if (res.results_P1 == null){
                 this.setState({ similarArtwork_1: res.results_P2[0]})
                 if (res.results_P2.length > 3){
                     this.setState({ similarArtwork_4: res.results_P2[3]})
@@ -121,7 +121,7 @@ class ArtworkPage extends React.Component {
         getSimilarArtworks(this.state.selectedObjectID).then(res => {
             if (res.results_P1 === "NOTHING"){
                 this.setState({similarArtworks: "This artwork is one of its kind!"})
-            } else if (res.sesults_P1 == null){
+            } else if (res.results_P1 == null){
                 this.setState({ similarArtwork_1: res.results_P2[0]})
                 if (res.results_P2.length > 3){
                     this.setState({ similarArtwork_4: res.results_P2[3]})
