@@ -68,8 +68,67 @@ WHERE OT.term = 'painted surface' AND OT.termType = 'Technique'; # 500+ art-obje
 /* -----------------------------------------------------------*/
 SELECT O.title, O.attribution, O.beginYear, O.endYear, O.objectID, OI.thumbURL
 FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
-WHERE O.beginYear >= 1900 AND O.endYear <= 1920;
+WHERE O.beginYear >= 0 AND O.endYear <= 2022;
 # WHERE O.beginYear >= 700 AND O.endYear <= 800; # Edge-case year range 700~800, no art-object returned
+
+SELECT COUNT(*)
+FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
+WHERE O.beginYear >= 0 AND O.endYear <= 2022;
+
+
+
+
+/* ----------------------------------------------------------------*/
+/* ------------- route handler #4 -- filterSearch()  --------------*/
+/* ----------------------------------------------------------------*/
+
+-- Case 1: FULL filters ------------------------------
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_constituents OC
+            JOIN constituents C
+            JOIN objects_images OI
+            JOIN objects_terms OT
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
+                O.objectID =OI.objectID AND O.objectID =OT.objectID
+WHERE (C.visualBrowserNationality LIKE '%Japanese%') AND
+                (OT.term LIKE '%' AND OT.termType = 'Style') AND
+                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                (O.classification LIKE '%')
+ORDER BY O.endYear, O.title, O.attribution, C.lastName
+LIMIT 0, 10;
+
+-- Case 2: having "style" filter, missing "nationality" filter --------------
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_images OI JOIN objects_terms OT
+            ON O.objectID =OI.objectID AND O.objectID =OT.objectID
+WHERE (OT.term LIKE '%' AND OT.termType = 'Style') AND
+                (O.beginYear >= 0 AND O.endYear <= 2022) AND
+                (O.classification LIKE '%')
+ORDER BY O.endYear, O.title, O.attribution
+LIMIT 0, 10;
+
+
+-- Case 3: having "nationality" filter, missing "style" filter --------------
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_constituents OC
+            JOIN constituents C
+            JOIN objects_images OI
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
+                O.objectID =OI.objectID
+WHERE (C.visualBrowserNationality LIKE '%Japanese%') AND
+                (O.beginYear >= 0 AND O.endYear <= 2022) AND
+                (O.classification LIKE '%')
+ORDER BY O.endYear, O.title, O.attribution, C.lastName
+LIMIT 0, 10;
+
+
+-- Case 4: missing "nationality" filter, missing "style" filter --------------
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
+WHERE (O.beginYear >= 0 AND O.endYear <= 2022) AND
+        (O.classification LIKE '%')
+ORDER BY O.endYear, O.title, O.attribution
+LIMIT 0, 10;
 
 
 /* -----------------------------------------------------------*/

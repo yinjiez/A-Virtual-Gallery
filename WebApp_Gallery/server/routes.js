@@ -109,7 +109,7 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 3 (handler) - similarArtworks
  * ***************************************
- * query parameter `objectID`
+ * query parameter `?objectID=`
  * ****************************************
  * recommand similar artwork by primary and secondary similarities 
  * 
@@ -207,8 +207,9 @@ async function artworkInfo(req, res) {
     const similar2 = await connection.query(queryStr2).catch(err => {throw err});
     
     // 3) if there is no similar artwork found (based on all the above criteria), we return this message
+    // to FRONT-END Note: if results_P1 == "NOTHING", meaning there is nothing similar to be recommanded
     if ( !similar1 && !similar2 ) {
-        return res.json ({results_P1 : "this is the only artwork of its kind"});
+        return res.json ({results_P1 : "NOTHING"});
     }
 
     // 4) return the similar artworks
@@ -222,75 +223,157 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 4 (handler) - filterSearch
  * ***************************************
- * search relavent artworks by a variety of filters: artists's
- * ex. URL http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting
- * ex. URL (pagination) http://localhost:8080/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting&page=2&pageszie=10
+ * search relavent artworks by a variety of filters:
+ * result will be returned by the following ordering: endYear >> title >> attribution >> lastName
+ * ex. URL (default)      http://localhost:8080/search/byFilter
+ * 
+ * Normal Filtering Cases: 
+ * Case1: full filters 
+ * ex. http://localhost:8080/search/byFilter?nationality=French&style=Impressionist&beginYear=1000&endYear=2000&classification=painting&page=1&pagesize=20   
+ * Case2: have “style”, miss “nationality”
+ * ex. http://localhost:8080/search/byFilter?nationality=&style=Impressionist&beginYear=1000&endYear=2000&classification=painting&page=2&pagesize=20   
+ * Case3: have “nationality”, miss “style”
+ * ex. http://localhost:8080/search/byFilter?nationality=Japanese&style=&beginYear=1000&endYear=2000&classification=painting&page=1&pagesize=20  
+ * Case4: miss “nationality”, miss “style”
+ * ex. http://localhost:8080/search/byFilter?nationality=&style=&beginYear=1000&endYear=2000&classification=painting&page=1&pagesize=20  
+ * 
+ * Edge Case:
+ * ex. invalid year inputs: http://localhost:8080/search/byFilter?nationality=French&style=Impressionist&beginYear=iris&endYear=ma&classification=painting&page=&pagesize=   
  */
  async function filterSearch(req, res) {
-    //1) fetch Route Paramter from {URL parameter portion}
-    const nationality = req.params.nationality ? req.params.nationality : 'American' // default nationality is American
-    const style = req.params.style ? req.params.style : 'Impressionist' // default style is Impressionist
-    const beginYear = req.params.beginYear ? req.params.beginYear : 1000// default beginYear is 1000
-    const endYear = req.params.endYear ? req.params.endYear : 1899 // default endYear is 1899
-    const classfication = req.params.classfication ? req.params.classfication : 'painting' // default classfication is painting
-    //2) fetch Query Parameter "page" & "pagesize"
-    const page = req.query.page //we assume user always enters valid page range: [1~n]
-    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
-    //3) calculate offsets
-    const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
+    
+    // #####################################################################################
+    // ##################################  SECTION 1  ######################################
+    // #####################################################################################
+    
+    //1) get these basic query parameters (these are always required for all cases)
+    var classfication = req.query.classfication ? req.query.classfication : '%' //default match for all classification
+    // check if begin, end year are numbers
+    var beginYear = null;
+    if ( req.query.beginYear && !isNaN(req.query.beginYear)) {
+        beginYear = req.query.beginYear;
+    } else {
+        beginYear = 0; // default beginYear is 0
+    }
+    var endYear = null;
+    if ( req.query.endYear && !isNaN(req.query.endYear)) {
+        endYear = req.query.endYear;
+    } else {
+        endYear = 2022; // default endYear is 2022
+    }
 
+    //2) initialize these variables, but needs more specific check for different query cases !!
+    var nationality = null; 
+    var style = null;   
 
-    if (req.query.page && !isNaN(req.query.page)) {
-        // This is the case where page is defined.
-        let queryStr = `
+    //3) fetch query parameter for pagination
+    const page = req.query.page ? req.query.page : 1            //defualt show 1st page, also assume user always enters valid page range: [1~n]
+    const limit = req.query.pagesize ? req.query.pagesize : 10  //default 10 rows of query result per page display
+    const offset = (page - 1) * limit                           //(page-1) since query offset is 0-based-indexing
+
+    //4) initialize a var for hold query string
+    var queryStr = null;
+
+    // #####################################################################################
+    // ##################################  SECTION 2  ######################################
+    // #####################################################################################
+
+    /** **********************************************************************************************************
+     * Explaination for the purpose of casing:
+     * since filtering for "style", require the extra JOIN with "objects_terms" table,
+     * IMPORTANT NOTICE: many artworks do have have a "style" attribute, or do not have any associated term description, hence these artworks'objectID do not exist in "object_terms" table
+     * this joining could potentially result in the loss of a significant portion of artworks data
+     * Therefore, when the "style" filer is NOT applied (i.e. NULL), we use an alternative version of jointed relations
+     * -----------------------------------------
+     * similar idea for "nationality" filter, which requires the JOINs with "objects_constituents", "constituents",
+     * *********************************************************************************************************
+     */
+
+    /** *****************************
+     * CASE 1: having "style" filer AND "nationality" filter
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_constituents", "constituents", "objects_images", "objects_terms"
+     */
+    if (req.query.style && req.query.nationality) {
+        // if there is a truthy value for "style" & "nationality" query parameters
+        nationality = req.query.nationality;
+        style = req.query.style;
+        queryStr = `
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
-        JOIN constituents C
-        JOIN objects_images OI
-        JOIN objects_terms OT
-        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND (OT.term LIKE '%${style}%' AND OT.termType = 'Style')
-            AND (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND (O.classification LIKE '%${classfication}%')
-        ORDER BY O.attribution, C.lastName, O.endYear, O.title
+            JOIN constituents C
+            JOIN objects_images OI
+            JOIN objects_terms OT
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
+                O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND
+                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND
+                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution, C.lastName
         LIMIT ${offset}, ${limit};
         `;
-        
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    res.json({ error: error});
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    } else {
-        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
-        
-        let queryStr = `
+    
+    /** *****************************
+     * CASE 2: having "style" filter, missing "nationality" filter,
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_images", "objects_terms"
+     */
+    } else if (req.query.style && !req.query.nationality){
+        style = req.query.style;
+        queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_images OI JOIN objects_terms OT
+                    ON O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND
+                        (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                        (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution
+        LIMIT ${offset}, ${limit};
+        `;
+    /** *****************************
+     * CASE 3: having "nationality" filter, missing "style" filter
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_constituents", "constituents", "objects_images"
+     */
+    } else if (!req.query.style && req.query.nationality){
+        nationality = req.query.nationality;
+        queryStr = `
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
-        JOIN constituents C
-        JOIN objects_images OI
-        JOIN objects_terms OT
-        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND (OT.term LIKE '%${style}%' AND OT.termType = 'Style')
-            AND (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND (O.classification LIKE '%${classfication}%')
-        ORDER BY O.attribution, C.lastName, O.endYear, O.title;
+                    JOIN constituents C
+                    JOIN objects_images OI
+                    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
+                        O.objectID =OI.objectID
+        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND
+                        (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                        (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution, C.lastName
+        LIMIT ${offset}, ${limit};
         `;
-
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
+    /** *****************************
+     * CASE 4: missing "nationality" filter, missing "style" filter
+     * ******************************
+     * in this case, we need to JOIN "objects", "objects_constituents", "constituents", "objects_images"
+     */
+    } else if (!req.query.style && !req.query.nationality){
+        queryStr = `
+        SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
+        WHERE (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
+                (O.classification LIKE '%${classfication}%')
+        ORDER BY O.endYear, O.title, O.attribution
+        LIMIT ${offset}, ${limit};
+        `;
     }
+
+
+    // #####################################################################################
+    // ##################################  SECTION 3  ######################################
+    // #####################################################################################
+
+    const filterResult = await connection.query(queryStr).catch(err => {throw err});
+    return res.json( {results: filterResult});
  };
 
 
@@ -302,13 +385,15 @@ async function artworkInfo(req, res) {
  * ***************************************
  * search relavent artworks by artwork's title OR/AND artist's name
  * Note: single space in URL's route parameter needs to be encoded as `%20`
- * ex. URL http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon
- * ex. URL (pagination) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon&page=2&pageszie=10
+ * ex. URL (defualt) http://localhost:8080/search/byKeyword
+ * ex. URL (normal case) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell
+ * ex. URL (full) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon
+ * ex. URL (pagination) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell%20after%20John%20James%20Audubon&page=1&pagesize=10
  */
  async function keywordSearch(req, res) {
-    //1) fetch Route Paramter from {URL parameter portion}
-    const artworkTitle = req.params.artworkTitle ? req.params.artworkTitle : 'American Flamingo' // default artworkTitle is American Flamingo
-    const artistName = req.params.artistName ? req.params.artistName : 'Robert Havell after John James Audubon' // default artistName is Robert Havell after John James Audubon
+    //1) fetch Query Paramter from {URL parameter portion}
+    const artworkTitle = req.query.artworkTitle ? req.query.artworkTitle : '%' // default match for all
+    const artistName = req.query.artistName ? req.query.artistName : '%' // default match for all
     //2) fetch Query Parameter "page" & "pagesize"
     const page = req.query.page //we assume user always enters valid page range: [1~n]
     const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
@@ -321,14 +406,14 @@ async function artworkInfo(req, res) {
         let queryStr = `
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
-        JOIN constituents C
-        JOIN objects_images OI
+                JOIN constituents C
+                JOIN objects_images OI
         ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
         WHERE (O.title LIKE '%${artworkTitle}%') AND
-        (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
-        C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
-        C.forwardDisplayName LIKE '%${artistName}%')
-        ORDER BY O.attribution, C.lastName, O.endYear, O.title
+            (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
+            C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
+            C.forwardDisplayName LIKE '%${artistName}%')
+        ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear
         LIMIT ${offset}, ${limit};
         `;
         
@@ -352,10 +437,10 @@ async function artworkInfo(req, res) {
         JOIN objects_images OI
         ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
         WHERE (O.title LIKE '%${artworkTitle}%') AND
-        (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
-        C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
-        C.forwardDisplayName LIKE '%${artistName}%')
-        ORDER BY O.attribution, C.lastName, O.endYear, O.title;
+                (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
+                C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
+                C.forwardDisplayName LIKE '%${artistName}%')
+        ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear;
         `;
 
         connection.query(queryStr, 
@@ -371,7 +456,6 @@ async function artworkInfo(req, res) {
     }
  };
 
-
  
 // #######################################
 // ############# YINJIE ##################
@@ -379,13 +463,19 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 6 (handler) - naughtySearchHeight
  * ***************************************
- * naughty search by height
- * ex. URL http://localhost:8080/search/naughtySearchByHeight?height=170
- * ex. URL (pagination) http://localhost:8080/search/naughtySearchByHeight?height=170&page=2&pageszie=10
+ * naughty search "painting" artworks by matching user's height (cm) with artwork's height (cm)
+ * ex. URL (defualt) http://localhost:8080/search/naughtySearchByHeight
+ * ex. URL (height)  http://localhost:8080/search/naughtySearchByHeight?height=185
+ * ex. URL (pagination) http://localhost:8080/search/naughtySearchByHeight?height=185&page=2&pagesize=10
  */
-async function naughtySearchHeight(req, res) {
+ async function naughtySearchHeight(req, res) {
+
+    // guarding for invalid parameter values
+    if (isNaN(req.query.height) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0 ){
+        return res.json ({results :[]});
+    }
     //1) fetch Route Paramter from {URL parameter portion}
-    const height = req.params.height ? req.params.height : 170 // default height is 170
+    const height = req.query.height ? req.query.height : 170 // default height is 170
     //2) fetch Query Parameter "page" & "pagesize"
     const page = req.query.page //we assume user always enters valid page range: [1~n]
     const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
@@ -396,12 +486,12 @@ async function naughtySearchHeight(req, res) {
     if (req.query.page && !isNaN(req.query.page)) {
         // This is the case where page is defined.
         let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS('${height}'-OD.dimension)
+        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
         FROM objects O JOIN objects_images OI
         JOIN objects_dimensions OD
         ON O.objectID =OI.objectID AND O.objectID = OD.objectID
         WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
-        ORDER BY ABS('${height}'-OD.dimension), O.title   
+        ORDER BY ABS(${height}-OD.dimension), O.title   
         LIMIT ${offset}, ${limit};
         `;
         
@@ -419,12 +509,13 @@ async function naughtySearchHeight(req, res) {
         // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
         
         let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS('${height}'-OD.dimension)
+        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
         FROM objects O JOIN objects_images OI
         JOIN objects_dimensions OD
         ON O.objectID =OI.objectID AND O.objectID = OD.objectID
         WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
-        ORDER BY ABS('${height}'-OD.dimension), O.title;
+        ORDER BY ABS(${height}-OD.dimension), O.title
+        LIMIT 30;
         `;
 
         connection.query(queryStr, 
@@ -440,38 +531,50 @@ async function naughtySearchHeight(req, res) {
     }
 };
 
+
 // #######################################
 // ############# YINJIE ##################
 // #######################################
 /** **************************************
  * Route 7 (handler) - naughtySearchBirthYear
  * ***************************************
- * naughty search by birthYear
- * ex. URL http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1999
- * ex. URL (pagination) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1999&backYear=100&page=2&pageszie=10
+ * naughty search artworks by matching with user's birthYear,
+ * return the artwork (of all kinds) produced in the birthYear in height descending order (tall --> short)
+ * ex. URL (default) http://localhost:8080/search/naughtySearchByBirthYear
+ * ex. URL (year)    http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1986
+ * ex. URL (pagination) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=1986&page=2&pageszie=10
+ * Edge Case Safe:
+ * ex. (birthYear non-number) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=iris
  */
  async function naughtySearchBirthYear(req, res) {
-    //1) fetch Route Paramter from {URL parameter portion}
-    const birthYear = req.params.birthYear ? req.params.birthYear : 1999 // default birthYear is 1999
-    //2) fetch backyear from client end
-    const backYear = req.params.backYear ? req.params.backYear : 100 // default backYear is -100
-    //3) calculate year difference
-    const yearDif = birthYear - backYear
-    //4) fetch Query Parameter "page" & "pagesize"
+     // guarding for invalid parameter values
+    if (isNaN(req.query.birthYear) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0){
+        return res.json ({results :[]});
+    }
+    
+    //1) check if query-paramter `birthYear` is a number and fetch it 
+    var birthYear = null;
+    if ( req.query.birthYear && !isNaN(req.query.birthYear)) {
+        birthYear = req.query.birthYear;
+    } else {
+        birthYear = 1999; // default birthYear is 1999
+    }
+    
+    //2) fetch Query Parameter "page" & "pagesize"
     const page = req.query.page //we assume user always enters valid page range: [1~n]
     const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
-    //5) calculate offsets
+    //3) calculate offsets
     const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
 
 
     if (req.query.page && !isNaN(req.query.page)) {
         // This is the case where page is defined.
         let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS('${yearDif}'-O.endYear), OI.thumbURL, OD.dimension
+        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
         FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
-        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+            ON O.objectID = OI.objectID AND O.objectID = OD.objectID
         WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
-        ORDER BY ABS('${yearDif}'-O.endYear), OD.dimension DESC   
+        ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC   
         LIMIT ${offset}, ${limit};
         `;
         
@@ -489,11 +592,11 @@ async function naughtySearchHeight(req, res) {
         // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
         
         let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS('${yearDif}'-O.endYear), OI.thumbURL, OD.dimension
+        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
         FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
-        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+            ON O.objectID =OI.objectID AND O.objectID = OD.objectID
         WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
-        ORDER BY ABS('${yearDif}'-O.endYear), OD.dimension DESC;
+        ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC;
         `;
 
         connection.query(queryStr, 
