@@ -516,7 +516,6 @@ async function artworkInfo(req, res) {
 };
 
 
-
 // #######################################
 // ############# YINJIE ##################
 // #######################################
@@ -532,6 +531,10 @@ async function artworkInfo(req, res) {
  * ex. (birthYear non-number) http://localhost:8080/search/naughtySearchByBirthYear?birthYear=iris
  */
  async function naughtySearchBirthYear(req, res) {
+     // guarding for invalid parameter values
+    if (isNaN(req.query.birthYear) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0){
+        return res.json ({results :[]});
+    }
     
     // guarding for invalid parameter values
     if (isNaN(req.query.birthYear) || isNaN(req.query.page) || isNaN(req.query.pagesize)){
@@ -572,7 +575,6 @@ async function artworkInfo(req, res) {
         }
     );
 };
-
 
 
 // #######################################
