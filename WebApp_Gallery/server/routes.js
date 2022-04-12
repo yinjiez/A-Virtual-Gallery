@@ -63,11 +63,18 @@ async function galleryOverview(req, res) {
  * query parameter `?objectID=`
  * ************************************
  * given the objectID of an artwork, this function will query and return all the necessary/detailed information about a given artwork
- * URL format (with route parameter): URL: /localhost:8080/artwork?objectID=xx  
+ * URL format (with route parameter): URL: /localhost:8080/artwork?objectID=xx 
+ * ex. (defualt) http://localhost:8080/artwork?objectID=
  * ex. URL: http://localhost:8080/artwork?objectID=0  
+ * ex. (non-existing objectID) http://localhost:8080/artwork?objectID=99999999    
  * 
  */
 async function artworkInfo(req, res) {
+    
+    // guarding for non-numeric inputs for "objectID" query-parameter
+    if (isNaN(req.query.objectID)){
+        res.json( {results_P1 :[], results_P2: [], results_P3: []} );
+    }
 
     const objectID = req.query.objectID ? req.query.objectID : 32572 ; //"American Flamingo" (objectID=32572), as default
 
@@ -78,8 +85,11 @@ async function artworkInfo(req, res) {
     WHERE O.objectID = ${objectID};` ;
     const p1 = await connection.query(queryStr1).catch(err => {throw err});
     // 1.1) get the High-Quality Image of this artwork by IIIF API ( https://iiif.io/api/image/2.1/ )
-    HDimageURL = p1[0].URL + "/full/!600,600/0/default.jpg" // this is getting the {full view, pixel 600 x 600, default-tone}
-    p1[0].URL = HDimageURL;
+    if (p1[0]){ // check if query reuslt is a truthy value (i.e. if nothing returned, this condition is evaluated to be falsy )
+        HDimageURL = p1[0].URL + "/full/!600,600/0/default.jpg" // this is getting the {full view, pixel 600 x 600, default-tone}
+        p1[0].URL = HDimageURL;
+    }
+
 
     // 2) query for part 2 of the result
     let queryStr2= `
@@ -113,12 +123,19 @@ async function artworkInfo(req, res) {
  * ****************************************
  * recommand similar artwork by primary and secondary similarities 
  * 
- * URL format (with query parameter): /localhost:8080/artwork/similarArtworks?id=xx  
- * ex. URL: http://localhost:8080/artwork/similarArtworks?id=0
+ * URL format (with query parameter): /localhost:8080/artwork/similarArtworks?id=xx
+ * ex. (default) URL: http://localhost:8080/artwork/similarArtworks  
+ * ex. (normal case) URL: http://localhost:8080/artwork/similarArtworks?id=0
+ * ex. (non-existing objectID) http://localhost:8080/artwork/similarArtworks?objectID=9999999                 
  */
  async function similarArtworks(req, res) {
+    // guarding for non-numeric inputs for "objectID" query-parameter
+    if (isNaN(req.query.objectID)){
+        return res.json ({results_P1 : "NOTHING", results_P2 : "NOTHING"});
+    }
 
     var objectID = req.query.objectID ? req.query.objectID : 32572 ; //"American Flamingo" (objectID=32572), as default
+
 
     /** ******************************************************************************
      * Step 1: get the relavent information components,
@@ -131,10 +148,20 @@ async function artworkInfo(req, res) {
     FROM objects O JOIN objects_images OI ON O.objectID = OI.objectID
     WHERE O.objectID = ${objectID};` ;
     const p1 = await connection.query(info1).catch(err => {throw err});
-    const artworkClass = p1[0].classification;
-    const portfolio = p1[0].portfolio;
-    const series = p1[0].series;
-    const volume = p1[0].volume;
+    var artworkClass = null;
+    var portfolio = null;
+    var series = null;
+    var volume = null;
+    if (p1[0]) {
+        artworkClass = p1[0].classification;
+        portfolio = p1[0].portfolio;
+        series = p1[0].series;
+        volume = p1[0].volume;
+    } else {
+        // in this case, the given objectID does not exist in our database
+        return res.json ({results_P1 : "NOTHING", results_P2 : "NOTHING"});
+    }
+
 
     // 2) get the artist's ID of this artwork
     let info2= `
@@ -144,8 +171,11 @@ async function artworkInfo(req, res) {
     ORDER BY displayOrder;
     ` ;
     const p2 = await connection.query(info2).catch(err => {throw err});
-    const artistID = p2[0].constituentID; // just take the first artist (if multiple artists)
-    console.log(artistID)
+    var artistID = null;
+    if (p2[0]){
+        artistID = p2[0].constituentID; // just take the first artist (if multiple artists)
+    }
+
     
     // 3) get the Style, School, Keyword, Theme information of this artwork
     let info3 = `
@@ -194,7 +224,8 @@ async function artworkInfo(req, res) {
     const similar1 = await connection.query(queryStr1).catch(err => {throw err});
 
     // 2) Secondary Recommandation: based on same style, school, keyword, theme
-    let queryStr2= `SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OT.termType, O.series, O.portfolio, O.volume
+    let queryStr2= `
+    SELECT DISTINCT O.title, O.attribution, O.objectID, OI.thumbURL, OT.termType, O.series, O.portfolio, O.volume
     FROM objects O JOIN objects_images OI JOIN objects_terms OT
         ON O.objectID = OI.objectID AND O.objectID = OT.objectID
     WHERE (O.objectID <> ${objectID}) AND (O.classification = '${artworkClass}') AND (
@@ -209,7 +240,7 @@ async function artworkInfo(req, res) {
     // 3) if there is no similar artwork found (based on all the above criteria), we return this message
     // to FRONT-END Note: if results_P1 == "NOTHING", meaning there is nothing similar to be recommanded
     if ( !similar1 && !similar2 ) {
-        return res.json ({results_P1 : "NOTHING"});
+        return res.json ({results_P1 : "NOTHING", results_P2 : "NOTHING"});
     }
 
     // 4) return the similar artworks
@@ -469,61 +500,39 @@ async function artworkInfo(req, res) {
  * ex. URL (pagination) http://localhost:8080/search/naughtySearchByHeight?height=185&page=2&pagesize=10
  */
  async function naughtySearchHeight(req, res) {
+
+    // guarding for invalid parameter values
+    if (isNaN(req.query.height) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0 ){
+        return res.json ({results :[]});
+    }
     //1) fetch Route Paramter from {URL parameter portion}
     const height = req.query.height ? req.query.height : 170 // default height is 170
     //2) fetch Query Parameter "page" & "pagesize"
-    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const page = req.query.page? req.query.page : 1 //default page is 1, we assume user always enters valid page range: [1~n]
     const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
     //3) calculate offsets
     const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
-
-
-    if (req.query.page && !isNaN(req.query.page)) {
-        // This is the case where page is defined.
-        let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
-        FROM objects O JOIN objects_images OI
-        JOIN objects_dimensions OD
-        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
-        WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
-        ORDER BY ABS(${height}-OD.dimension), O.title   
-        LIMIT ${offset}, ${limit};
-        `;
-        
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    res.json({ error: error});
-                } else if (results) {
-                    res.json({ results: results })
-                }
+    
+    let queryStr = `
+    SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
+    FROM objects O JOIN objects_images OI
+    JOIN objects_dimensions OD
+    ON O.objectID =OI.objectID AND O.objectID = OD.objectID
+    WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
+    ORDER BY ABS(${height}-OD.dimension), O.title   
+    LIMIT ${offset}, ${limit};
+    `;
+    
+    connection.query(queryStr, 
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                res.json({ error: error});
+            } else if (results) {
+                res.json({ results: results })
             }
-        );
-    } else {
-        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
-        
-        let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, OI.thumbURL, OD.dimension, ABS(${height}-OD.dimension) AS deviation
-        FROM objects O JOIN objects_images OI
-        JOIN objects_dimensions OD
-        ON O.objectID =OI.objectID AND O.objectID = OD.objectID
-        WHERE O.classification = 'painting' AND OD.dimensionType = 'height' AND OD.unitName = 'centimeters' 
-        ORDER BY ABS(${height}-OD.dimension), O.title
-        LIMIT 30;
-        `;
-
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
+        }
+    );
 };
 
 
@@ -544,6 +553,11 @@ async function artworkInfo(req, res) {
  */
  async function naughtySearchBirthYear(req, res) {
     
+    // guarding for invalid parameter values
+    if (isNaN(req.query.birthYear) || isNaN(req.query.page) || isNaN(req.query.pagesize) || req.query.page <= 0 || req.query.pagesize <= 0){
+        return res.json ({results :[]});
+    }
+
     //1) check if query-paramter `birthYear` is a number and fetch it 
     var birthYear = null;
     if ( req.query.birthYear && !isNaN(req.query.birthYear)) {
@@ -553,55 +567,30 @@ async function artworkInfo(req, res) {
     }
     
     //2) fetch Query Parameter "page" & "pagesize"
-    const page = req.query.page //we assume user always enters valid page range: [1~n]
+    const page = req.query.page ? req.query.page : 1 //we assume user always enters valid page range: [1~n]
     const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
     //3) calculate offsets
     const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
-
-
-    if (req.query.page && !isNaN(req.query.page)) {
-        // This is the case where page is defined.
-        let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
-        FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
-            ON O.objectID = OI.objectID AND O.objectID = OD.objectID
-        WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
-        ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC   
-        LIMIT ${offset}, ${limit};
-        `;
-        
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    res.json({ error: error});
-                } else if (results) {
-                    res.json({ results: results })
-                }
+    
+    let queryStr = `
+    SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
+    FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
+        ON O.objectID = OI.objectID AND O.objectID = OD.objectID
+    WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
+    ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC   
+    LIMIT ${offset}, ${limit};
+    `;
+    
+    connection.query(queryStr, 
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                res.json({ error: error});
+            } else if (results) {
+                res.json({ results: results })
             }
-        );
-    } else {
-        // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
-        
-        let queryStr = `
-        SELECT O.title, O.attribution, O.objectID, O.endYear, ABS(${birthYear}-O.endYear) AS deviation, OI.thumbURL, OD.dimension
-        FROM objects O JOIN objects_images OI JOIN objects_dimensions OD
-            ON O.objectID =OI.objectID AND O.objectID = OD.objectID
-        WHERE O.endYear IS NOT NULL AND OD.dimensionType = 'height'
-        ORDER BY ABS(${birthYear}-O.endYear), OD.dimension DESC;
-        `;
-
-        connection.query(queryStr, 
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
+        }
+    );
 };
 
 
@@ -621,35 +610,36 @@ async function artworkInfo(req, res) {
     // 0) query for Overview of Analysis Category: showing term counts for each category of analysis. i.e. Style, School, Theme, Technique, Keyword, Place Executed,
     let queryStr0 = `
     (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Style')
     UNION
     (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'School')
     UNION
     (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Theme')
     UNION
     (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Keyword')
     UNION
     (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Technique')
     UNION
     (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Place Executed');
+    
     `;
     const resOverview = await connection.query(queryStr0).catch(err => {throw err});
 
      // 1) query for part 1 of the result
      let queryStr1= `
      SELECT OT.term, COUNT(*) AS StyleCounts
-     FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+     FROM objects_terms OT
      WHERE OT.termType = 'Style'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
@@ -660,7 +650,7 @@ async function artworkInfo(req, res) {
      // 2) query for part 2 of the result
      let queryStr2= `
      SELECT OT.term, COUNT(*) AS SchoolCounts
-     FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+     FROM objects_terms OT
      WHERE OT.termType = 'School'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
@@ -671,7 +661,7 @@ async function artworkInfo(req, res) {
      // 3) query for part 3 of the result
      let queryStr3 = `
      SELECT OT.term, COUNT(*) AS TechniqueCounts
-     FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+     FROM objects_terms OT
      WHERE OT.termType = 'Technique'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
@@ -682,7 +672,7 @@ async function artworkInfo(req, res) {
      // 4) query for part 4 of the result
      let queryStr4 = `
      SELECT OT.term, COUNT(*) AS ThemeCounts
-     FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+     FROM objects_terms OT
      WHERE OT.termType = 'Theme'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
@@ -693,7 +683,7 @@ async function artworkInfo(req, res) {
      // 5) query for part 5 of the result
      let queryStr5 = `
      SELECT OT.term, COUNT(*) AS KeywordCounts
-     FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+     FROM objects_terms OT
      WHERE OT.termType = 'Keyword'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
@@ -705,7 +695,7 @@ async function artworkInfo(req, res) {
      // 6) query for part 5 of the result
      let queryStr6 = `
      SELECT OT.term, COUNT(*) AS PlaceExecutedCounts
-     FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+     FROM objects_terms OT
      WHERE OT.termType = 'Place Executed'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
@@ -796,8 +786,14 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 10 (handler) - portraitsAcrossTime
  * ***************************************
+ * within the givne time range, find and return artworks that have their theme of contents been defined as portraits
+ * front-end will ask for 5 different time-spans: 16th (1500~1599), 17th (1600~1699), 18th(1700~1799), 19th (1800~1899), 20th (1900~1999) centries
  * URL route parameter `:artworkClass`: 'painting' or 'drawing' or 'print'
  * URL query parameter `?beginYear=xxxx&endYear=xxxx&page=x&pagesize=5`
+ * 
+ * ex. http://localhost:8080/analysis/portraitsAcrossTime/painting?beginYear=1600&endYear=1699 
+ * ex. http://localhost:8080/analysis/portraitsAcrossTime/drawing?beginYear=1600&endYear=1699&page=2&pagesize=20  
+
  */
  async function portraitsAcrossTime(req, res) {
     

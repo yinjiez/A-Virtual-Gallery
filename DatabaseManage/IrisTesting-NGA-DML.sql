@@ -331,27 +331,27 @@ ORDER BY ABS(1989-0-O.endYear), OD.dimension DESC ;
 /* -----------------------------------------------------------*/
 -- 1) showing term counts for each category of analysis. i.e. Style, School, Theme, Technique, Keyword, Place Executed,
 (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+FROM objects_terms OT
 WHERE OT.termType = 'Style')
 UNION
 (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+FROM objects_terms OT
 WHERE OT.termType = 'School')
 UNION
 (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+FROM objects_terms OT
 WHERE OT.termType = 'Theme')
 UNION
 (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+FROM objects_terms OT
 WHERE OT.termType = 'Keyword')
 UNION
 (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+FROM objects_terms OT
 WHERE OT.termType = 'Technique')
 UNION
 (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+FROM objects_terms OT
 WHERE OT.termType = 'Place Executed');
 
 
@@ -365,7 +365,7 @@ ORDER BY OT.termType, COUNT(OT.term) DESC;
 -- 2) showing top 5 popular words under each category
 (
     SELECT OT.term, COUNT(*) AS StyleCounts
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Style'
     GROUP BY OT.term
     ORDER BY COUNT(*) DESC
@@ -374,7 +374,7 @@ ORDER BY OT.termType, COUNT(OT.term) DESC;
 UNION
 (
     SELECT OT.term, COUNT(*) AS SchoolCounts
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'School'
     GROUP BY OT.term
     ORDER BY COUNT(*) DESC
@@ -383,7 +383,7 @@ UNION
 UNION
 (
     SELECT OT.term, COUNT(*) AS TechniqueCounts
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Technique'
     GROUP BY OT.term
     ORDER BY COUNT(*) DESC
@@ -392,7 +392,7 @@ UNION
 UNION
 (
     SELECT OT.term, COUNT(*) AS ThemeCounts
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Theme'
     GROUP BY OT.term
     ORDER BY COUNT(*) DESC
@@ -401,7 +401,7 @@ UNION
 UNION
 (
     SELECT OT.term, COUNT(*) AS KeywordCounts
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Keyword'
     GROUP BY OT.term
     ORDER BY COUNT(*) DESC
@@ -410,7 +410,7 @@ UNION
 UNION
 (
     SELECT OT.term, COUNT(*) AS PlaceExecutedCounts
-    FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
+    FROM objects_terms OT
     WHERE OT.termType = 'Place Executed'
     GROUP BY OT.term
     ORDER BY COUNT(*) DESC
@@ -637,12 +637,19 @@ UNION
         LIMIT 5);
 
 
-# #############################################################
-# ################## Feature #4 ###############################
-# #############################################################
+# #######################################################################################
+# ################## route handler #1 - galleryOverview() ###############################
+# #########################################################################################
 
+-- 1) get counts for each classification
 SELECT classification, count(*) as artworkCounts
 FROM objects
 GROUP BY classification;
+
+-- 2) get all the known geographical origin of artwork (i.e. by artist's nationality)
+SELECT visualBrowserNationality AS nationality, COUNT(DISTINCT O.objectID) AS artworkCounts
+FROM objects O JOIN objects_constituents OC JOIN constituents C
+    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID
+GROUP BY C.visualBrowserNationality;
 
 
