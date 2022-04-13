@@ -193,7 +193,7 @@ class ArtworkPage extends React.Component {
                         </Col>
                     </Row>
                     <Row>
-                    {!this.state.err2 && <Typography.Title level={4} style={{ margin: "10px 20px 10px 40px" }}>You may also like:</Typography.Title>}
+                    {!this.state.err2 && <Typography.Title level={4} style={{ margin: "10px 20px 10px 70px" }}>You may also like:</Typography.Title>}
                     </Row>
                     <Row justify="space-around" align="middle">
                         <Col span={6} style={{textAlign: 'center'}}>
