@@ -299,7 +299,7 @@ class SearchPage extends React.Component {
             grid={{column: 3, md: true}}
             size="medium"
             pagination={{
-              defaultPageSize: 3, showQuickJumper: true, showSizeChanger: true
+              pageSizeOptions:[3, 6, 9], defaultPageSize: 3, showQuickJumper: true, showSizeChanger: true
             }}
             dataSource={this.state.naughtyResults}
             renderItem={item => <Card hoverable = {true}
