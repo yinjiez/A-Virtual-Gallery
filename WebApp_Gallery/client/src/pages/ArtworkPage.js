@@ -47,8 +47,7 @@ class ArtworkPage extends React.Component {
         }
 
         this.goToArtwork = this.goToArtwork.bind(this)
-        this.renderSwatches = this.renderSwatches.bind(this)
-        this.getColors = this. getColors.bind(this)
+
     }
 
     goToArtwork(objectID) {
@@ -102,7 +101,7 @@ class ArtworkPage extends React.Component {
         
 
         getSimilarArtworks(this.state.selectedObjectID).then(res => {
-            if (res.results_P1 === "NOTHING" && res.results_P2 === "NOTHING"){
+            if ((res.results_P1 === "NOTHING" && res.results_P2 === "NOTHING")|| (res.results_P1.length==0 && res.results_P2.length==0)){
                 this.setState({err2: true})
             } else if (res.results_P1.length == 0){
                 this.setState({ similarArtwork_1: res.results_P2[0]})
