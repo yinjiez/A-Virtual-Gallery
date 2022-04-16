@@ -13,7 +13,7 @@ import 'antd/dist/antd.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import ArtworkPage from './pages/ArtworkPage';
-// import SearchPage from './pages/SearchPage';
+import SearchPage from './pages/SearchPage';
 
 ReactDOM.render(
   <div>
@@ -36,12 +36,12 @@ ReactDOM.render(
 								<ArtworkPage />
 							)}/> 		
 
-        {/* <Route exact
+        <Route exact
 							path="/search"
 							render={() => (
 								<SearchPage />
 							)}/>
-        <Route exact
+        {/* <Route exact
 							path="/analysis"
 							render={() => (
 								<AnalysisPage />
