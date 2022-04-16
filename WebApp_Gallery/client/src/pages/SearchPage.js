@@ -1,13 +1,11 @@
 import React from 'react';
-import {FormInput, FormGroup, Button, Badge, CardBody, CardTitle, Container, Progress } from "shards-react";
-import Masonry, {ResponsiveMasonry} from "react-responsive-masonry"
+import {FormInput, FormGroup, Button } from "shards-react";
+import Masonry from "react-responsive-masonry"
 import {
     Table,
     Row,
     Col,
     Divider,
-    Image,
-    Tag,
     Typography,
     Menu,
     Layout,
@@ -21,13 +19,11 @@ import {
 import { getSearchByFilter, getSearchByKeyword, getNaughtyByHeight, getNaughtyByBirthYear } from '../fetcher'
 import MenuBar from '../components/MenuBar';
 
-import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
 
 const { Header, Content, Sider, Footer } = Layout;
 
 const { SubMenu } = Menu;
 const { Title } = Typography;
-const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
 
 
@@ -48,8 +44,11 @@ class SearchPage extends React.Component {
             filterEndyear: 2022,
             filterStyle: '',
             searchResults:[],
+            naughtyResults:[],
             visible: 6,
-            mode:'k'
+            mode:'k',
+            height: 170,
+            birthYear: 1999
 
         }
 
@@ -61,9 +60,13 @@ class SearchPage extends React.Component {
         this.handleBegYearChange = this.handleBegYearChange.bind(this)
         this.handleEndYearChange = this.handleEndYearChange.bind(this)
         this.handleStyleChange = this.handleStyleChange.bind(this)
+        this.handleHeightChange = this.handleHeightChange.bind(this)
+        this.handleBirthYearChange = this.handleBirthYearChange.bind(this)
         this.loadMore = this.loadMore.bind(this)
         this.updateSearchResults = this.updateSearchResults.bind(this)
-        this.updateFilterResults = this.updateFilterResults.bind(this)        
+        this.updateFilterResults = this.updateFilterResults.bind(this)
+        this.updateHeightResults = this.updateHeightResults.bind(this)        
+        this.updateBirthYearResults = this.updateBirthYearResults.bind(this)  
 
     }
 
@@ -105,6 +108,13 @@ class SearchPage extends React.Component {
       this.setState( {visible: this.state.visible + 6})
     }
   
+    handleHeightChange(event){
+      this.setState({ height: event.target.value })
+    }
+
+    handleBirthYearChange(event){
+      this.setState({ birthYear: event.target.value })
+    }
 
 
     /**update keyword search */
@@ -135,6 +145,31 @@ class SearchPage extends React.Component {
         })
     }
 
+     /** update naughty search */
+    updateHeightResults(){
+        getNaughtyByHeight(this.state.height, 1, 30).then(res => {
+          var jsonObj ={}
+          var list5 = []
+          for (let i = 0; i < res.results.length; i++) {
+              jsonObj = res.results[i]
+              list5.push(jsonObj)
+              this.setState({ naughtyResults: list5})
+          }
+        })
+      }
+
+    updateBirthYearResults(){
+        getNaughtyByBirthYear(this.state.birthYear, 1, 30).then(res => {
+          var jsonObj ={}
+          var list6 = []
+          for (let i = 0; i < res.results.length; i++) {
+              jsonObj = res.results[i]
+              list6.push(jsonObj)
+              this.setState({ naughtyResults: list6})
+          }
+        })
+    }
+
 
     componentDidMount() {
 
@@ -145,6 +180,16 @@ class SearchPage extends React.Component {
                 jsonObj = res.results[i]
                 list1.push(jsonObj)
                 this.setState({ searchResults: list1})
+          }
+        })
+
+        getNaughtyByBirthYear(this.state.birthYear, 1, 30).then(res => {
+          var jsonObj ={}
+          var list3 = []
+          for (let i = 0; i < res.results.length; i++) {
+              jsonObj = res.results[i]
+              list3.push(jsonObj)
+              this.setState({ naughtyResults: list3})
           }
         })
           
@@ -220,8 +265,54 @@ class SearchPage extends React.Component {
           </Content>
         </Layout>
         </Divider>
+
+        {/* Naughty search */}
+        <Divider>
+        <Row style={{ padding: '0 24px', minHeight: 30 }}></Row>
+        <Row justify="space-around" align="middle"> 
+        <Title level ={2}>Not Sure What To See? Try Explore Collections From Here</Title>
+          {/* create search fields*/}
+          <Form style={{ width: '80vw', margin: '0 auto', marginTop: '2vh', marginBottom: '2vh' }}>
+            <Row>
+              <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                <label>Enter your height (in centimeters):</label>
+                <FormInput placeholder="height (eg. 180)" onChange={this.handleHeightChange} />
+              </FormGroup></Col>
+              <Col flex={2}><FormGroup style={{ width: '10vw' }}>
+                <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateHeightResults}>Search</Button>
+              </FormGroup></Col>
+
+              <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                <label>Enter your birth year:</label>
+                <FormInput placeholder="year (eg. 2000)" onChange={this.handleBirthYearChange} />
+              </FormGroup></Col>
+              <Col flex={2}><FormGroup style={{ width: '10vw' }}>
+                <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateBirthYearResults}>Search</Button>
+              </FormGroup></Col>
+            </Row>
+          </Form>
+        </Row>
+        <Layout className="site-layout-background" style={{ padding: '24px 0'}}>
+          <Content style={{ padding: '0 120px', minHeight: 280 }}>
+            <List
+            itemLayout="vertical"
+            grid={{column: 3, md: true}}
+            size="medium"
+            pagination={{
+              defaultPageSize: 3, showQuickJumper: true, showSizeChanger: true
+            }}
+            dataSource={this.state.naughtyResults}
+            renderItem={item => <Card hoverable = {true}
+              style={{ width: 220, marginTop: '2vh',whiteSpace: 'normal' }}
+              cover={<img src={item.thumbURL} maxHeight={300}></img>} onClick={() => this.goToArtwork(item.objectID)}>
+                  <Meta title={<a>{item.title}</a>}></Meta>
+                  <Meta description={item.attribution}></Meta>
+            </Card>}
+            />
+          </Content>
+          </Layout>
+        </Divider>
       </div>
-      
     )
   }
 }
