@@ -282,7 +282,7 @@ async function artworkInfo(req, res) {
     }
 
     //2) get these basic query parameters (these are always required for all cases)
-    var classfication = req.query.classfication ? req.query.classfication : '%' //default match for all classification
+    var classification = req.query.classification ? req.query.classification : '%' //default match for all classification
     // check if begin, end year are numbers
     var beginYear = null;
     if ( req.query.beginYear && !isNaN(req.query.beginYear)) {
@@ -303,7 +303,7 @@ async function artworkInfo(req, res) {
 
     //3) fetch query parameter for pagination
     const page = req.query.page ? req.query.page : 1            //defualt show 1st page, also assume user always enters valid page range: [1~n]
-    const limit = req.query.pagesize ? req.query.pagesize : 10  //default 10 rows of query result per page display
+    const limit = req.query.pagesize ? req.query.pagesize : 6  //default 10 rows of query result per page display
     const offset = (page - 1) * limit                           //(page-1) since query offset is 0-based-indexing
 
     //4) initialize a var for hold query string
@@ -341,10 +341,10 @@ async function artworkInfo(req, res) {
             JOIN objects_terms OT
             ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
                 O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND
-                (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND
+        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%${nationality}%')) AND
+                (LOWER(OT.term) LIKE LOWER('%${style}%') AND OT.termType = 'Style') AND
                 (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                (O.classification LIKE '%${classfication}%')
+                (LOWER(O.classification) LIKE LOWER('%${classification}%'))
         ORDER BY O.endYear, O.title, O.attribution, C.lastName
         LIMIT ${offset}, ${limit};
         `;
@@ -360,9 +360,9 @@ async function artworkInfo(req, res) {
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_images OI JOIN objects_terms OT
                     ON O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (OT.term LIKE '%${style}%' AND OT.termType = 'Style') AND
+        WHERE (LOWER(OT.term) LIKE LOWER('%${style}%') AND OT.termType = 'Style') AND
                         (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                        (O.classification LIKE '%${classfication}%')
+                        (LOWER(O.classification) LIKE LOWER('%${classification}%'))
         ORDER BY O.endYear, O.title, O.attribution
         LIMIT ${offset}, ${limit};
         `;
@@ -380,9 +380,9 @@ async function artworkInfo(req, res) {
                     JOIN objects_images OI
                     ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
                         O.objectID =OI.objectID
-        WHERE (C.visualBrowserNationality LIKE '%${nationality}%') AND
+        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%${nationality}%')) AND
                         (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                        (O.classification LIKE '%${classfication}%')
+                        (LOWER(O.classification) LIKE LOWER('%${classification}%'))
         ORDER BY O.endYear, O.title, O.attribution, C.lastName
         LIMIT ${offset}, ${limit};
         `;
@@ -396,7 +396,7 @@ async function artworkInfo(req, res) {
         SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
         WHERE (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                (O.classification LIKE '%${classfication}%')
+                (LOWER(O.classification) LIKE LOWER('%${classification}%'))
         ORDER BY O.endYear, O.title, O.attribution
         LIMIT ${offset}, ${limit};
         `;
@@ -437,7 +437,7 @@ async function artworkInfo(req, res) {
     const artistName = req.query.artistName ? req.query.artistName : '%' // default match for all
     //2) fetch Query Parameter "page" & "pagesize"
     const page = req.query.page ? req.query.page : 1 //we assume user always enters valid page range: [1~n]
-    const limit = req.query.pagesize ? req.query.pagesize : 10 //default 10 rows of query result per page display
+    const limit = req.query.pagesize ? req.query.pagesize : 6 //default 10 rows of query result per page display
     //3) calculate offsets
     const offset = (page - 1) * limit //(page-1) since query offset is 0-based-indexing
 
@@ -447,10 +447,10 @@ async function artworkInfo(req, res) {
                 JOIN constituents C
                 JOIN objects_images OI
         ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
-        WHERE (O.title LIKE '%${artworkTitle}%') AND
-            (O.attribution LIKE '%${artistName}%' OR O.attributionInverted LIKE '%${artistName}%' OR
-            C.lastName LIKE '%${artistName}%' OR C.preferredDisplayName LIKE '%${artistName}%' OR
-            C.forwardDisplayName LIKE '%${artistName}%')
+        WHERE (LOWER(O.title) LIKE LOWER('%${artworkTitle}%')) AND
+            (LOWER(O.attribution) LIKE LOWER('%${artistName}%') OR LOWER(O.attributionInverted) LIKE LOWER('%${artistName}%') OR
+            LOWER(C.lastName) LIKE LOWER('%${artistName}%') OR LOWER(C.preferredDisplayName) LIKE LOWER('%${artistName}%') OR
+            LOWER(C.forwardDisplayName) LIKE LOWER('%${artistName}%'))
         ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear
         LIMIT ${offset}, ${limit};
         `;

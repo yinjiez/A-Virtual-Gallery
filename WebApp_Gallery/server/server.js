@@ -39,7 +39,7 @@ app.get('/artwork/similarArtworks', routes.similarArtworks);
 // Route 4 - register as GET 
 app.get('/search/byFilter', routes.filterSearch);
 // URL format: /search/byFilter?nationality=xxxx&style=xxxx&beginYear=xxxx&endYear=xxxx&classification=xxxx
-// ex. http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classfication=painting&page=2&pagesize=10
+// ex. http://localhost:8080/search/byFilter?nationality=American&style=Impressionist&beginYear=1000&endYear=1899&classification=painting&page=2&pagesize=10
 
 // Route 5 - register as GET 
 app.get('/search/byKeyword', routes.keywordSearch);
