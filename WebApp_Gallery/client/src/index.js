@@ -14,6 +14,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import ArtworkPage from './pages/ArtworkPage';
 import SearchPage from './pages/SearchPage';
+import AnalysisPage from './pages/AnalysisPage';
 
 ReactDOM.render(
   <div>
