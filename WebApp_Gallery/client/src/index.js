@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom';
 
 import HomePage from './pages/HomePage';
-// import AnalysisPage from './pages/AnalysisPage';
 import 'antd/dist/antd.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -42,11 +41,11 @@ ReactDOM.render(
 							render={() => (
 								<SearchPage />
 							)}/>
-        {/* <Route exact
+        <Route exact
 							path="/analysis"
 							render={() => (
 								<AnalysisPage />
-							)}/> */}
+							)}/>
       </Switch>
     </Router>
   </div>,
