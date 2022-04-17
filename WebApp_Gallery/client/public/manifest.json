@@ -3,7 +3,7 @@
     "name": "CIS 550 - DataOmni - Art Gallery",
     "icons": [
       {
-        "src": "gallery.png",
+        "src": "mona-lisa.png",
         "type": "image/png",
         "sizes": "512x512"
       }
