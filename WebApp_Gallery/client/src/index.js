@@ -41,11 +41,11 @@ ReactDOM.render(
 							render={() => (
 								<SearchPage />
 							)}/>
-        {/* <Route exact
+        <Route exact
 							path="/analysis"
 							render={() => (
 								<AnalysisPage />
-							)}/> */}
+							)}/>
       </Switch>
     </Router>
   </div>,
