@@ -16,8 +16,11 @@ import {
 
 } from 'antd'
 
+import qs from "qs";
+
 import { getSearchByFilter, getSearchByKeyword, getNaughtyByHeight, getNaughtyByBirthYear } from '../fetcher'
 import MenuBar from '../components/MenuBar';
+import { useLocation } from 'react-router-dom';
 
 
 const { Header, Content, Sider, Footer } = Layout;
@@ -27,7 +30,9 @@ const { Title } = Typography;
 const { Meta } = Card;
 
 
+
 class SearchPage extends React.Component {
+
     constructor(props) {
         super(props)
 
@@ -48,9 +53,10 @@ class SearchPage extends React.Component {
             visible: 6,
             mode:'k',
             height: 170,
-            birthYear: 1999
-
+            birthYear: 1999,
+            style: window.location.search ? window.location.search.substring(1).split('=')[1] : ""
         }
+        
 
         this.goToArtwork = this.goToArtwork.bind(this)
         this.searchArtwork = this.searchArtwork.bind(this)
@@ -68,8 +74,10 @@ class SearchPage extends React.Component {
         this.updateHeightResults = this.updateHeightResults.bind(this)        
         this.updateBirthYearResults = this.updateBirthYearResults.bind(this)  
 
-    }
 
+    }
+    
+    
     goToArtwork(objectID) {
         window.location = `/artwork?objectID=${objectID}`
     }
@@ -172,28 +180,45 @@ class SearchPage extends React.Component {
 
 
     componentDidMount() {
-
-        getSearchByKeyword(this.state.searchArtwork, this.state.searchArtist, 1, this.state.visible).then(res => {
+        if (this.state.style !== ""){
+          getSearchByFilter("", this.state.style, 0, 2022, "painting", 1, 60).then(res => {
             var jsonObj ={}
-            var list1 = []
+            var list7 = []
             for (let i = 0; i < res.results.length; i++) {
                 jsonObj = res.results[i]
-                list1.push(jsonObj)
-                this.setState({ searchResults: list1})
-          }
-        })
+                list7.push(jsonObj)
+                this.setState({ searchResults: list7})
+            }
+            this.setState({ style: ""})
+          })
 
-        getNaughtyByBirthYear(this.state.birthYear, 1, 30).then(res => {
-          var jsonObj ={}
-          var list3 = []
-          for (let i = 0; i < res.results.length; i++) {
-              jsonObj = res.results[i]
-              list3.push(jsonObj)
-              this.setState({ naughtyResults: list3})
-          }
-        })
-          
+          // this.setState({ searchResults: []})
+        } else {
+
+          getSearchByKeyword(this.state.searchArtwork, this.state.searchArtist, 1, this.state.visible).then(res => {
+              var jsonObj ={}
+              var list1 = []
+              for (let i = 0; i < res.results.length; i++) {
+                  jsonObj = res.results[i]
+                  list1.push(jsonObj)
+                  this.setState({ searchResults: list1})
+            }
+          })
+
+          getNaughtyByBirthYear(this.state.birthYear, 1, 30).then(res => {
+            var jsonObj ={}
+            var list3 = []
+            for (let i = 0; i < res.results.length; i++) {
+                jsonObj = res.results[i]
+                list3.push(jsonObj)
+                this.setState({ naughtyResults: list3})
+            }
+          })
+        }
+        
     }
+
+
 
   render() {
     return (

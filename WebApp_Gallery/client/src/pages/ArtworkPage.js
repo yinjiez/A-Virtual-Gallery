@@ -101,7 +101,7 @@ class ArtworkPage extends React.Component {
         
 
         getSimilarArtworks(this.state.selectedObjectID).then(res => {
-            if ((res.results_P1 === "NOTHING" && res.results_P2 === "NOTHING")|| (res.results_P1.length==0 && res.results_P2.length==0)){
+            if (!res || (res.results_P1 === "NOTHING" && res.results_P2 === "NOTHING")|| (res.results_P1.length==0 && res.results_P2.length==0)){
                 this.setState({err2: true})
             } else if (res.results_P1.length == 0){
                 this.setState({ similarArtwork_1: res.results_P2[0]})
@@ -114,7 +114,7 @@ class ArtworkPage extends React.Component {
                 if (res.results_P2.length > 1){
                     this.setState({ similarArtwork_2: res.results_P2[1]})
                 }
-            } else {
+            } else if (res.results_P2.length == 0){
                 this.setState({ similarArtwork_1: res.results_P1[0]})
                 if (res.results_P1.length > 3){
                     this.setState({ similarArtwork_4: res.results_P1[3]})
@@ -125,10 +125,9 @@ class ArtworkPage extends React.Component {
                 if (res.results_P1.length > 1){
                     this.setState({ similarArtwork_2: res.results_P1[1]})
                 }
-            }
-        })
-            // this.setState({err2: true})})
+            }})
     }
+
 
     
     render() {

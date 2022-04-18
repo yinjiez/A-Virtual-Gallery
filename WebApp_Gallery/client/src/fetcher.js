@@ -26,10 +26,14 @@ const getArtwork = async (objectID) => {
 
 // Fetcher 3
 const getSimilarArtworks = async (objectID) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/artwork/similarArtworks?objectID=${objectID}`, {
-        method: 'GET',
-    })
-    return res.json()
+    try{
+        var res = await fetch(`http://${config.server_host}:${config.server_port}/artwork/similarArtworks?objectID=${objectID}`, {
+            method: 'GET',
+        })
+        return res.json()
+    } catch {
+    }
+
 }
 
 //****************************

@@ -41,6 +41,16 @@ ReactDOM.render(
 							render={() => (
 								<SearchPage />
 							)}/>
+		<Route exact
+							path="/search/byFilter"
+							render={() => (
+								<SearchPage />
+							)}/>
+		<Route exact
+							path="/search/byKeyword"
+							render={() => (
+								<SearchPage />
+							)}/>
         <Route exact
 							path="/analysis"
 							render={() => (
