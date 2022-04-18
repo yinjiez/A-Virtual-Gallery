@@ -16,7 +16,6 @@ import {
 
 } from 'antd'
 
-import qs from "qs";
 
 import { getSearchByFilter, getSearchByKeyword, getNaughtyByHeight, getNaughtyByBirthYear } from '../fetcher'
 import MenuBar from '../components/MenuBar';
@@ -133,8 +132,9 @@ class SearchPage extends React.Component {
         for (let i = 0; i < res.results.length; i++) {
             jsonObj = res.results[i]
             list2.push(jsonObj)
-            this.setState({ searchResults: list2})
+            
         }
+        this.setState({ searchResults: list2})
         this.setState( {mode: 'k'})
       })
     }
@@ -147,8 +147,8 @@ class SearchPage extends React.Component {
           for (let i = 0; i < res.results.length; i++) {
               jsonObj = res.results[i]
               list4.push(jsonObj)
-              this.setState({ searchResults: list4})
           }
+          this.setState({ searchResults: list4})
           this.setState( {mode: 'f'})
         })
     }
@@ -161,8 +161,8 @@ class SearchPage extends React.Component {
           for (let i = 0; i < res.results.length; i++) {
               jsonObj = res.results[i]
               list5.push(jsonObj)
-              this.setState({ naughtyResults: list5})
           }
+          this.setState({ naughtyResults: list5})
         })
       }
 
@@ -173,8 +173,8 @@ class SearchPage extends React.Component {
           for (let i = 0; i < res.results.length; i++) {
               jsonObj = res.results[i]
               list6.push(jsonObj)
-              this.setState({ naughtyResults: list6})
           }
+          this.setState({ naughtyResults: list6})
         })
     }
 
@@ -187,8 +187,8 @@ class SearchPage extends React.Component {
             for (let i = 0; i < res.results.length; i++) {
                 jsonObj = res.results[i]
                 list7.push(jsonObj)
-                this.setState({ searchResults: list7})
             }
+            this.setState({ searchResults: list7})
             this.setState({ style: ""})
           })
 
@@ -201,8 +201,8 @@ class SearchPage extends React.Component {
               for (let i = 0; i < res.results.length; i++) {
                   jsonObj = res.results[i]
                   list1.push(jsonObj)
-                  this.setState({ searchResults: list1})
-            }
+              }
+              this.setState({ searchResults: list1})
           })
 
           getNaughtyByBirthYear(this.state.birthYear, 1, 30).then(res => {
@@ -211,8 +211,8 @@ class SearchPage extends React.Component {
             for (let i = 0; i < res.results.length; i++) {
                 jsonObj = res.results[i]
                 list3.push(jsonObj)
-                this.setState({ naughtyResults: list3})
             }
+            this.setState({ naughtyResults: list3})
           })
         }
         
