@@ -50,9 +50,9 @@ class SearchPage extends React.Component {
             searchResults:[],
             naughtyResults:[],
             visible: 6,
-            mode:'k',
+            mode:'f',
             height: 170,
-            birthYear: 1999,
+            birthYear: 2001,
             style: window.location.search ? window.location.search.substring(1).split('=')[1] : ""
         }
         
@@ -195,14 +195,15 @@ class SearchPage extends React.Component {
           // this.setState({ searchResults: []})
         } else {
 
-          getSearchByKeyword(this.state.searchArtwork, this.state.searchArtist, 1, this.state.visible).then(res => {
-              var jsonObj ={}
-              var list1 = []
-              for (let i = 0; i < res.results.length; i++) {
-                  jsonObj = res.results[i]
-                  list1.push(jsonObj)
-              }
-              this.setState({ searchResults: list1})
+          getSearchByFilter(this.state.filterNationality, this.state.filterStyle, this.state.filterBeginyear, this.state.filterEndyear, this.state.filterClassification, 1, this.state.visible).then(res => {
+            var jsonObj ={}
+            var list1 = []
+            for (let i = 0; i < res.results.length; i++) {
+                jsonObj = res.results[i]
+                list1.push(jsonObj)
+            }
+            this.setState({ searchResults: list1})
+            this.setState( {mode: 'f'})
           })
 
           getNaughtyByBirthYear(this.state.birthYear, 1, 30).then(res => {
