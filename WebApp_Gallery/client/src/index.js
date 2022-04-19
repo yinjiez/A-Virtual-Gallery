@@ -19,7 +19,7 @@ ReactDOM.render(
   <div>
     <Router>
       <Switch>
-        {/* <Route exact
+        <Route exact
 							path="/"
 							render={() => (
 								<HomePage />
@@ -28,7 +28,7 @@ ReactDOM.render(
 							path="/home"
 							render={() => (
 								<HomePage />
-							)}/>  */}
+							)}/> 
 
 		<Route exact
 							path="/artwork"
