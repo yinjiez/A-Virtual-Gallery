@@ -210,8 +210,6 @@ FROM objects_terms OT
 WHERE OT.objectID = 0
 ORDER BY termType;
 
-
-
 -- find the artist's ID ----------------------
 SELECT objectID, constituentID, displayOrder
 FROM objects_constituents
@@ -220,6 +218,9 @@ ORDER BY displayOrder;
 
 /* -----------------------------------------------------------*/
 /* --------------- Recommend by Similarity  ------------------*/
+/* -----------------------------------------------------------*/
+/* --------- route handler #3 -- similarArtwork()  --------------*/
+/* -----------------------------------------------------------*/
 /* -----------------------------------------------------------*/
 
 /* Testing Sample 1:
@@ -267,6 +268,11 @@ WHERE (O.objectID <> 0 ) AND (O.classification = 'painting') AND (
       (OT.termType = 'Theme' AND OT.term = 'saints') )
 ORDER BY termType
 LIMIT 4;
+
+
+/* ----------------------------------------------------------------*/
+/* ------------- route handler #4 -- filterSearch()  --------------*/
+/* ----------------------------------------------------------------*/
 
 
 # #############################################################
