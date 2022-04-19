@@ -12,7 +12,9 @@ import {
     Input,
     Form,
     Card,
-    List
+    List,
+    Select,
+
 
 } from 'antd'
 
@@ -27,7 +29,7 @@ const { Header, Content, Sider, Footer } = Layout;
 const { SubMenu } = Menu;
 const { Title } = Typography;
 const { Meta } = Card;
-
+const { Option } = Select;
 
 
 class SearchPage extends React.Component {
@@ -100,7 +102,7 @@ class SearchPage extends React.Component {
     }
 
     handleStyleChange(event) {
-        this.setState({ filterStyle: event.target.value })
+        this.setState({ filterStyle: event })
     }
 
     handleBegYearChange(event) {
@@ -178,10 +180,25 @@ class SearchPage extends React.Component {
         })
     }
 
+    /** update style collection results */
+    updateStyleResults(){
+      getSearchByFilter("", this.state.style, 0, 2022, "painting", 1, this.state.visible).then(res => {
+        var jsonObj ={}
+        var list8 = []
+        for (let i = 0; i < res.results.length; i++) {
+            jsonObj = res.results[i]
+            list8.push(jsonObj)
+        }
+        this.setState({ searchResults: list8})
+        this.setState({ mode: 's'})
+      })
+  }
+
 
     componentDidMount() {
         if (this.state.style !== ""){
-          getSearchByFilter("", this.state.style, 0, 2022, "painting", 1, 60).then(res => {
+          this.setState({ visible: 60})
+          getSearchByFilter("", this.state.style, 0, 2022, "painting", 1, this.state.visible).then(res => {
             var jsonObj ={}
             var list7 = []
             for (let i = 0; i < res.results.length; i++) {
@@ -189,7 +206,7 @@ class SearchPage extends React.Component {
                 list7.push(jsonObj)
             }
             this.setState({ searchResults: list7})
-            this.setState({ style: ""})
+            this.setState({ mode: 's'})
           })
 
           // this.setState({ searchResults: []})
@@ -268,8 +285,23 @@ class SearchPage extends React.Component {
                 <Menu.Item key='drawing' >Drawing</Menu.Item>
               </SubMenu>
               <Row style={{ padding: '0 24px', minHeight: 10 }}></Row>
-              <Form name="filter" labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} >
-                <Form.Item name="style" label="Style" > <Input placeholder="style" onChange={this.handleStyleChange}/> </Form.Item>
+              <Form name="filter" labelCol={{ span: 8 }} wrapperCol={{ span: 12 }}>
+                <Form.Item name="style" label="Style"> 
+                <Select placeholder="select a style" onChange={this.handleStyleChange}>
+                  <Option value="Impressionist">Impressionist</Option>
+                  <Option value="Post-Impressionist">Post-Impressionist</Option>
+                  <Option value="Baroque">Baroque</Option>
+                  <Option value="Realist">Realist</Option>
+                  <Option value="Renaissance">Renaissance</Option>
+                  <Option value="Romantic">Romantic</Option>
+                  <Option value="Naive">Naive</Option>
+                  <Option value="Abstract Expressionist">Abstract Expressionist</Option>
+                  <Option value="Rococo">Rococo</Option>
+                  <Option value="Neoclassic">Neoclassic</Option>
+                  <Option value="Gothic">Gothic</Option>
+                  <Option value="Minimalist">Minimalist</Option>
+               </Select>
+                </Form.Item>
                 <Form.Item name="nationality" label="Nationality" > <Input placeholder="American" onChange={this.handleNationalityChange}/> </Form.Item>
                 <Form.Item name="beginYear" label="Begin Year" > <Input type="text" pattern="[0-9]*" placeholder={1500}  onChange={this.handleBegYearChange}/> </Form.Item>
                 <Form.Item name="endYear" label="End Year" > <Input type="text" pattern="[0-9]*" placeholder={1800} onChange={this.handleEndYearChange}/> </Form.Item>
@@ -287,7 +319,7 @@ class SearchPage extends React.Component {
             </Card>)}
             </Masonry>
             <Row justify='center'><button          
-            onClick={() => [this.state.mode ==='k'? [this.loadMore(), this.updateSearchResults()] :  [this.loadMore(), this.updateFilterResults()]]} type="button" className="load-more">Load more</button></Row>
+            onClick={() => [this.state.mode === 's'? [this.loadMore(), this.updateStyleResults()]: (this.state.mode ==='k'? [this.loadMore(), this.updateSearchResults()] :  [this.loadMore(), this.updateFilterResults()])]} type="button" className="load-more">Load more</button></Row>
           </Content>
         </Layout>
         </Divider>
