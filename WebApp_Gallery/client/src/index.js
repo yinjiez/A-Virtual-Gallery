@@ -56,6 +56,21 @@ ReactDOM.render(
 							render={() => (
 								<AnalysisPage />
 							)}/>
+		<Route exact
+							path="/analysis/analysisOverview"
+							render={() => (
+								<AnalysisPage />
+							)}/>
+		<Route exact
+							path="/analysis/analysisByType"
+							render={() => (
+								<AnalysisPage />
+							)}/>
+		<Route exact
+							path="/analysis/portraitsAcrossTime"
+							render={() => (
+								<AnalysisPage />
+							)}/>														
       </Switch>
     </Router>
   </div>,
