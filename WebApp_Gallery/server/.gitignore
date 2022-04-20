@@ -1,7 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# --  dependencies related --------
+/node_modules/.bin
+# ignore final executable binary files of node_modules-files, because these can be recompiled by each machine locally
 /.pnp
 .pnp.js
 

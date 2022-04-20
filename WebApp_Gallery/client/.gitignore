@@ -1,0 +1,4 @@
+# --  dependencies related --------
+/node_modules/.bin
+/node_modules/.cache
+# ignore final executable binary files of node_modules-files, because these can be recompiled by each machine locally
