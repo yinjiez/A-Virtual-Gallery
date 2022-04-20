@@ -283,6 +283,7 @@ class SearchPage extends React.Component {
                 <Menu.Item key='painting' >Painting</Menu.Item>
                 <Menu.Item key='print'  >Print</Menu.Item>
                 <Menu.Item key='drawing' >Drawing</Menu.Item>
+                <Menu.Item key='' >All</Menu.Item>
               </SubMenu>
               <Row style={{ padding: '0 24px', minHeight: 10 }}></Row>
               <Form name="filter" labelCol={{ span: 8 }} wrapperCol={{ span: 12 }}>
