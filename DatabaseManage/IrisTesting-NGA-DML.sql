@@ -17,6 +17,16 @@ FROM objects O JOIN objects_constituents OC
 WHERE C.visualBrowserNationality = 'American';
 
 
+-- testing some origins: there is no artists' with artworks in our database, who are from "Native"
+SELECT O.title, O.attribution, O.objectID, OI.thumbURL
+FROM objects O JOIN objects_constituents OC
+                JOIN constituents C
+                JOIN objects_images OI
+    ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID
+    AND O.objectID = OI.objectID
+WHERE C.visualBrowserNationality = 'Native';
+
+
 /* -----------------------------------------------------------*/
 /* --------------- Filter: by Artist lastName  -------------------*/
 /* -----------------------------------------------------------*/
@@ -656,6 +666,9 @@ GROUP BY classification;
 SELECT visualBrowserNationality AS nationality, COUNT(DISTINCT O.objectID) AS artworkCounts
 FROM objects O JOIN objects_constituents OC JOIN constituents C
     ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID
-GROUP BY C.visualBrowserNationality;
+GROUP BY C.visualBrowserNationality
+ORDER BY COUNT(*) DESC ;
+
+
 
 

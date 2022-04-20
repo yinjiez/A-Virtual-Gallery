@@ -98,7 +98,7 @@ class SearchPage extends React.Component {
     }
 
     handleNationalityChange(event) {
-      this.setState({ filterNationality: event.target.value })
+      this.setState({ filterNationality: event }) //event.target.value 
     }
 
     handleStyleChange(event) {
@@ -300,9 +300,40 @@ class SearchPage extends React.Component {
                   <Option value="Neoclassic">Neoclassic</Option>
                   <Option value="Gothic">Gothic</Option>
                   <Option value="Minimalist">Minimalist</Option>
+                  <Option value="">  </Option>
                </Select>
                 </Form.Item>
-                <Form.Item name="nationality" label="Nationality" > <Input placeholder="American" onChange={this.handleNationalityChange}/> </Form.Item>
+                {/* <Form.Item name="nationality" label="Nationality" > <Input placeholder="American" onChange={this.handleNationalityChange}/> </Form.Item>*/}
+                <Form.Item name="nationality" label="Nationality" > 
+                <Select placeholder="artist's origin" onChange={this.handleNationalityChange}>
+                  <Option value="American">American</Option>
+                  <Option value="Mexican">Mexican</Option>
+                  <Option value="Canadian">Canadian</Option>
+                  <Option value="British">British</Option>
+                  <Option value="English">English</Option>
+                  <Option value="Scottish">Scottish</Option>
+                  <Option value="Italian">Italian</Option>
+                  <Option value="Spanish">Spanish</Option>
+                  <Option value="French">French</Option>
+                  <Option value="German">German</Option>
+                  <Option value="Austrian">Austrian</Option>
+                  <Option value="Dutch">Dutch</Option>
+                  <Option value="Netherlandish">Netherlandish</Option>
+                  <Option value="Norwegian">Norwegian</Option>
+                  <Option value="Flemish">Flemish</Option>
+                  <Option value="Swiss">Swiss</Option>
+                  <Option value="Swedish">Swedish</Option>
+                  <Option value="Belgian">Belgian</Option>
+                  <Option value="Danish">Danish</Option>
+                  <Option value="Russian">Russian</Option>
+                  <Option value="Czech">Czech</Option>
+                  <Option value="Bohemian">Bohemian</Option>
+                  <Option value="Japanese">Japanese</Option>
+                  <Option value="Chinese">Chinese</Option>
+                  <Option value="Other">Other</Option>
+                  <Option value="">  </Option>
+               </Select>
+                </Form.Item>
                 <Form.Item name="beginYear" label="Begin Year" > <Input type="text" pattern="[0-9]*" placeholder={1500}  onChange={this.handleBegYearChange}/> </Form.Item>
                 <Form.Item name="endYear" label="End Year" > <Input type="text" pattern="[0-9]*" placeholder={1800} onChange={this.handleEndYearChange}/> </Form.Item>
               </Form>
