@@ -36,41 +36,6 @@ const { Title } = Typography;
 const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
 
-// Keywords chart pre-setup: to return keyword map
-const DemoWordCloud = () => {
-    const [data, setData] = useState([]);
-  
-    useEffect(() => {
-      asyncFetch();
-    }, []);
-  
-    const asyncFetch = () => {
-      fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/antv-keywords.json')
-        .then((response) => response.json())
-        .then((json) => setData(json))
-        .catch((error) => {
-          console.log('fetch data failed', error);
-        });
-    };
-    const config = {
-      data,
-      wordField: 'name',
-      weightField: 'value',
-      colorField: 'name',
-      wordStyle: {
-        fontFamily: 'Verdana',
-        fontSize: [8, 32],
-        rotation: 0,
-      },
-
-      random: () => 0.5,
-    };
-  
-    return <WordCloud {...config} />;
-  };  
-
-
-
 //   Pre-setup for heatmap
 const DemoHeatmap = () => {
     const [data, setData] = useState([]);
@@ -213,6 +178,25 @@ class AnalysisPage extends React.Component {
         this.setState({ portraitSet: temp})
     }
 
+    keywordGraph = (dataset) => {
+
+        const config = {
+          data: dataset,
+          wordField: 'name',
+          weightField: 'value',
+          colorField: 'name',
+          wordStyle: {
+            fontFamily: 'Verdana',
+            fontSize: [12, 38],
+            rotation: 0,
+          },
+    
+          random: () => 0.5,
+        };
+      
+        return <WordCloud {...config} />;
+      };  
+
     componentDidMount() {
 
         Promise.all([
@@ -231,6 +215,38 @@ class AnalysisPage extends React.Component {
             this.setState({ p6: r6.results}) //store 5 portraits from 20th century
             this.setState({ portraitSet: [this.state.p1[0], this.state.p2[0],  this.state.p3[0], this.state.p4[0],this.state.p5[0], this.state.p6[0]]}) //push the 1st item of each period into the display set
         })
+
+        getAnalysisOverview().then(res => {
+            var jsonObj = {}
+            var keys = []
+            for (let i = 0; i < res.Style.length; i++) {
+                jsonObj = res.Style[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.School.length; i++) {
+                jsonObj = res.School[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.Theme.length; i++) {
+                jsonObj = res.Theme[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.Technique.length; i++) {
+                jsonObj = res.Technique[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.Keyword.length; i++) {
+                jsonObj = res.Keyword[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.PlaceExecuted.length; i++) {
+                jsonObj = res.PlaceExecuted[i]
+                keys.push(jsonObj)
+            }
+            
+            this.setState({ keywordSelections: keys })
+        })
+        
     }
 
     render() {
@@ -239,28 +255,13 @@ class AnalysisPage extends React.Component {
                 <MenuBar />
 
                 <Divider>
-                        {/* Have two graphs in one row */}
-                        {/* <Form style={{ width: '80vw', margin: '0 auto', marginTop: '2vh', marginBottom: '2vh' }}>
-                        <Row gutter={200} justify="space-around" align="middle">
-                                <Col flex={1}><FormGroup style={{ width: '30vw', margin: '0 auto' }}>
-                                    <label>Keywords:</label>
-                                    <DemoWordCloud />
-                                </FormGroup></Col>
-                                <Col flex={1}><FormGroup style={{ width: '30vw', margin: '0 auto' }}>
-                                    <label>Heatmap:</label>
-                                    <DemoHeatmap />
-                                </FormGroup></Col>
-                            </Row>
-                        </Form> */}
                         {/* Display keyword graph on top */}
                     <Row justify="space-around" align="middle">
                         <Title level={2}>Collections Keywords</Title>
                     </Row>
-                    <Form style={{ width: '60vw', margin: '0 auto', minHeight: 280}}>
-                        <DemoWordCloud />
-                    </Form>
-                                                      
-                        
+                    <Form style={{ width: '80vw', margin: '0 auto', minHeight: 400}}>
+                        {this.keywordGraph(this.state.keywordSelections)}
+                    </Form>        
                 </Divider>
 
                 <Row justify="space-around" align="middle">
@@ -289,58 +290,6 @@ class AnalysisPage extends React.Component {
                     </div></a>)}
                 </ItemsCarousel></div>
                 
-
-                 {/* Artworks in different region*/}
-                 {/* <Divider>
-                    <Row style={{ padding: '0 24px', minHeight: 10 }}></Row>
-                    <Layout className="site-layout-background" style={{ padding: '0 50px' }}>
-                        <Content className="site-layout-content" style={{ padding: '0 50px', minHeight: 280 }}>
-                            <Form style={{ width: '80vw', margin: '0 auto', marginTop: '2vh', marginBottom: '2vh' }}>
-                                <Row style={{ padding: '0 24px', minHeight: 10 }}>
-                                    <Row justify="space-around" align="middle">
-                                        <Title level={3}>Artwork Collections In Different Regions</Title>
-                                    </Row>
-                                    <Row gutter={200} justify="space-around" align="middle">
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                    <Row style={{ padding: '0 24px', minHeight: 30 }}></Row>
-                                </Row>
-                            </Form>
-                        </Content>
-                    </Layout>
-                </Divider> */}
-
                 {/* Display heatmap */}
                 <Divider>
                         {/* Display heatmap graph at bottom */}
