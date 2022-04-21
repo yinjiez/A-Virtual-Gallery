@@ -625,7 +625,7 @@ async function artworkInfo(req, res) {
      WHERE OT.termType = 'Style'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      ` ;
      const resStyle = await connection.query(queryStr1).catch(err => {throw err});
  
@@ -636,7 +636,7 @@ async function artworkInfo(req, res) {
      WHERE OT.termType = 'School'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resSchool = await connection.query(queryStr2).catch(err => {throw err});
  
@@ -647,7 +647,7 @@ async function artworkInfo(req, res) {
      WHERE OT.termType = 'Technique'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resTechnique = await connection.query(queryStr3).catch(err => {throw err});
      
@@ -658,7 +658,7 @@ async function artworkInfo(req, res) {
      WHERE OT.termType = 'Theme'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resTheme = await connection.query(queryStr4).catch(err => {throw err});
      
@@ -669,7 +669,7 @@ async function artworkInfo(req, res) {
      WHERE OT.termType = 'Keyword'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resKeyword = await connection.query(queryStr5).catch(err => {throw err});
 
@@ -681,12 +681,12 @@ async function artworkInfo(req, res) {
      WHERE OT.termType = 'Place Executed'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resPlaceExecuted = await connection.query(queryStr6).catch(err => {throw err});
 
      // 7) return all three parts together as a JSON object
-     res.json( { Overview: resOverview, Style: resStyle, School: resSchool, Theme: resTheme, Technique: resTechnique, Keyword: resKeyword, PlaceExecuted: resPlaceExecuted } );
+     res.json( {Style: resStyle, School: resSchool, Theme: resTheme, Technique: resTechnique, Keyword: resKeyword, PlaceExecuted: resPlaceExecuted } );
 
 };
 
