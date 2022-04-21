@@ -620,7 +620,7 @@ async function artworkInfo(req, res) {
 
      // 1) query for part 1 of the result
      let queryStr1= `
-     SELECT OT.term, COUNT(*) AS StyleCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Style'
      GROUP BY OT.term
@@ -631,7 +631,7 @@ async function artworkInfo(req, res) {
  
      // 2) query for part 2 of the result
      let queryStr2= `
-     SELECT OT.term, COUNT(*) AS SchoolCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'School'
      GROUP BY OT.term
@@ -642,7 +642,7 @@ async function artworkInfo(req, res) {
  
      // 3) query for part 3 of the result
      let queryStr3 = `
-     SELECT OT.term, COUNT(*) AS TechniqueCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Technique'
      GROUP BY OT.term
@@ -653,7 +653,7 @@ async function artworkInfo(req, res) {
      
      // 4) query for part 4 of the result
      let queryStr4 = `
-     SELECT OT.term, COUNT(*) AS ThemeCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Theme'
      GROUP BY OT.term
@@ -664,7 +664,7 @@ async function artworkInfo(req, res) {
      
      // 5) query for part 5 of the result
      let queryStr5 = `
-     SELECT OT.term, COUNT(*) AS KeywordCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Keyword'
      GROUP BY OT.term
@@ -676,7 +676,7 @@ async function artworkInfo(req, res) {
 
      // 6) query for part 5 of the result
      let queryStr6 = `
-     SELECT OT.term, COUNT(*) AS PlaceExecutedCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Place Executed'
      GROUP BY OT.term
