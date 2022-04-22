@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "shards-react";
+import { Button as Button2} from "shards-react";
 import { WordCloud, Bar} from '@ant-design/plots';
 
 import {
     Table,
+    Button,
     Row,
     Col,
     Divider,
@@ -312,14 +313,14 @@ class AnalysisPage extends React.Component {
                                 style={{ height: '100%', borderRight: 0, }}
                                 onSelect={this.handleTypeChange}
                                 >
-                                <Button theme="secondary" style={{ marginTop: '1vh' }} size='30' block> Select a Type: </Button>
+                                <Button2 theme="secondary" style={{ marginTop: '1vh' }} size='30' block> Select a Type: </Button2>
                                 <Menu.Item key='Style' >Style</Menu.Item>
                                 <Menu.Item key='School' >School</Menu.Item>
                                 <Menu.Item key='Theme' >Theme</Menu.Item>
                                 <Menu.Item key='Technique' >Technique</Menu.Item>
                                 <Menu.Item key='Keyword' >Keyword</Menu.Item>
                                 <Menu.Item key='Place Executed' >Place</Menu.Item>
-                                <Button theme="secondary" style={{ marginTop: '1vh' }} size='30' block onClick = {this.updateBarChart}> Explore: </Button>
+                                <Button2 theme="secondary" style={{ marginTop: '1vh' }} size='30' block onClick = {this.updateBarChart}> Explore: </Button2>
                             </Menu>
                         </Sider>
                             <Content className="site-layout-background" style={{ padding: 24, margin: 0, minHeight: 280 }} >
