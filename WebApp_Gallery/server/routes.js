@@ -718,7 +718,7 @@ async function artworkInfo(req, res) {
     if (req.query.page && !isNaN(req.query.page)) {
         // This is the case where page is defined.
         let queryStr = `
-        SELECT OT.term, COUNT(*) AS termCounts
+        SELECT OT.term AS name, COUNT(*) AS value
         FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
         WHERE OT.termType = '${analysisType}'
         GROUP BY OT.term
@@ -741,7 +741,7 @@ async function artworkInfo(req, res) {
         // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
         
         let queryStr = `
-        SELECT OT.term, COUNT(*) AS termCounts
+        SELECT OT.term AS name, COUNT(*) AS value
         FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
         WHERE OT.termType = '${analysisType}'
         GROUP BY OT.term
