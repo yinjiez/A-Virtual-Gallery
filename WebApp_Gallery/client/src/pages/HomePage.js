@@ -8,10 +8,8 @@ import {Link, Redirect} from 'react-router-dom';
 import Slider from 'react-animated-slider';
 import 'react-animated-slider/build/horizontal.css';
 
-// import {AreaMap} from'ant-design/maps';
 import DataSet from '@antv/data-set'
 import { Chart } from '@antv/g2'
-import { transformLabel } from '@antv/g2plot/lib/utils';
 
 const { Title } = Typography;
 
