@@ -250,7 +250,7 @@ class SearchPage extends React.Component {
           <Form style={{ width: '80vw', margin: '0 auto', marginTop: '0vh', marginBottom: '2vh' }}>
             <Row>
               <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                <label>Search by artwork:</label>
+                <label>Search by Artwork:</label>
                 <FormInput placeholder="artwork" value={this.state.searchArtwork} onChange={this.searchArtwork} />
               </FormGroup></Col>
               <Col flex={2}><FormGroup style={{ width: '10vw' }}>
@@ -258,7 +258,7 @@ class SearchPage extends React.Component {
               </FormGroup></Col>
 
               <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                <label>Search by artist:</label>
+                <label>Search by Artist:</label>
                 <FormInput placeholder="artist" value={this.state.searchArtist} onChange={this.searchArtist} />
               </FormGroup></Col>
               <Col flex={2}><FormGroup style={{ width: '10vw' }}>
@@ -360,24 +360,24 @@ class SearchPage extends React.Component {
         <Divider>
         <Row style={{ padding: '0 24px', minHeight: 30 }}></Row>
         <Row justify="space-around" align="middle"> 
-        <Title level ={2}>Not Sure What To See? Try Explore Collections From Here</Title>
+        <Title level ={2}>Not Sure What To See? Start Here! </Title>
           {/* create search fields*/}
           <Form style={{ width: '80vw', margin: '0 auto', marginTop: '2vh', marginBottom: '2vh' }}>
             <Row>
               <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                <label>Enter your height (in centimeters):</label>
+                <label>Enter Your Height (in centimeters):</label>
                 <FormInput placeholder="height (eg. 180)" onChange={this.handleHeightChange} />
               </FormGroup></Col>
               <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateHeightResults}>Search</Button>
+                <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateHeightResults}>Find Artwork As Tall As You</Button>
               </FormGroup></Col>
 
               <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                <label>Enter your birth year:</label>
+                <label>Enter Your Birth Year:</label>
                 <FormInput placeholder="year (eg. 2000)" onChange={this.handleBirthYearChange} />
               </FormGroup></Col>
               <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateBirthYearResults}>Search</Button>
+                <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateBirthYearResults}>Find Artwork Created in Your Birth Year</Button>
               </FormGroup></Col>
             </Row>
           </Form>
