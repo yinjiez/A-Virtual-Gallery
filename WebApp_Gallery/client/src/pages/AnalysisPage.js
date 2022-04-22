@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FormInput, FormGroup, Badge, CardBody, CardTitle, Progress, CardImgOverlay } from "shards-react";
-import { WordCloud, Heatmap } from '@ant-design/plots';
+import { Button } from "shards-react";
+import { WordCloud, Bar} from '@ant-design/plots';
 
 import {
     Table,
@@ -14,15 +14,12 @@ import {
     Input,
     Form,
     Card,
-    Button,
     Tooltip
 
 } from 'antd'
 
 import ItemsCarousel from 'react-items-carousel';
 import {Link, Redirect} from 'react-router-dom';
-
-import { getArtwork, getSimilarArtworks } from '../fetcher'
 import { getAnalysisOverview, getAnalysisByType, getPortraitsAcrossTime } from '../fetcher'
 
 import MenuBar from '../components/MenuBar';
@@ -35,41 +32,6 @@ const { SubMenu } = Menu;
 const { Title } = Typography;
 const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
-
-//   Pre-setup for heatmap
-const DemoHeatmap = () => {
-    const [data, setData] = useState([]);
-  
-    useEffect(() => {
-      asyncFetch();
-    }, []);
-  
-    const asyncFetch = () => {
-      fetch('https://gw.alipayobjects.com/os/basement_prod/a719cd4e-bd40-4878-a4b4-df8a6b531dfe.json')
-        .then((response) => response.json())
-        .then((json) => setData(json))
-        .catch((error) => {
-          console.log('fetch data failed', error);
-        });
-    };
-    const config = {
-      width: 650,
-      height: 500,
-      autoFit: false,
-      data,
-      xField: 'Month of Year',
-      yField: 'District',
-      colorField: 'AQHI',
-      color: ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'],
-      meta: {
-        'Month of Year': {
-          type: 'cat',
-        },
-      },
-    };
-  
-    return <Heatmap {...config} />;
-  };
 
 //horizonal scroll implementation
 
@@ -149,11 +111,16 @@ class AnalysisPage extends React.Component {
             p4: [], //6 portraits from 18th century (1700 -1799)
             p5: [], //6 portraits from 19th century (1800 -1899)
             p6: [], //6 portraits from 20th century (1900 -1999)
-            k: 0
+            k: 0,
+            keywordSelections: [],
+            type: '',
+            termsSelections: []
         }
     
     this.shufflePortraitSet = this.shufflePortraitSet.bind(this)
     this.goToArtwork = this.goToArtwork.bind(this)
+    this.updateBarChart = this.updateBarChart.bind(this)
+    this.handleTypeChange = this.handleTypeChange.bind(this)
 
     }
 
@@ -178,6 +145,10 @@ class AnalysisPage extends React.Component {
         this.setState({ portraitSet: temp})
     }
 
+    handleTypeChange(event){
+        this.setState({type: event.key})
+    }
+
     keywordGraph = (dataset) => {
 
         const config = {
@@ -195,7 +166,32 @@ class AnalysisPage extends React.Component {
         };
       
         return <WordCloud {...config} />;
-      };  
+      }; 
+      
+      barChart = (dataset) => {
+        const config = {
+            data: dataset,
+            xField: 'value',
+            yField: 'name',
+            seriesField: 'name',
+            legend: false,
+        };
+        return <Bar {...config} />;
+    };
+
+
+    updateBarChart() {
+        getAnalysisByType(this.state.type, 1, 15).then(res => {
+            var jsonObj = {}
+            var keys = []
+            for (let i = 0; i < res.results.length; i++) {
+                jsonObj = res.results[i]
+                keys.push(jsonObj)
+            }
+            this.setState({ termsSelections: keys })
+        })
+    }
+
 
     componentDidMount() {
 
@@ -246,6 +242,16 @@ class AnalysisPage extends React.Component {
             
             this.setState({ keywordSelections: keys })
         })
+
+        getAnalysisByType('Keyword', 1, 15).then(res => {
+            var jsonObj = {}
+            var keys = []
+            for (let i = 0; i < res.results.length; i++) {
+                jsonObj = res.results[i]
+                keys.push(jsonObj)
+            }
+            this.setState({ termsSelections: keys })
+        })
         
     }
 
@@ -290,18 +296,38 @@ class AnalysisPage extends React.Component {
                     </div></a>)}
                 </ItemsCarousel></div>
                 
-                {/* Display heatmap */}
-                <Divider>
-                        {/* Display heatmap graph at bottom */}
-                    <Row style={{ padding: '0 24px', minHeight: 50 }}></Row>
+                {/* Display bar chart */}
+           
+                <Row style={{ padding: '0 24px', minHeight: 50 }}></Row>
                     <Row justify="space-around" align="middle">
-                        <Title level={2}>Collections Distribution</Title>
+                        <Title level={2}>Collections Distribution by Type</Title>
                     </Row>
-                    <Form style={{ width: '100vw', margin: '0 auto', minHeight: 280, marginTop: '5 vh'}}>
-                        {/* <DemoHeatmap /> */}
-                    </Form>
-                                                      
-                </Divider>
+                    
+                    <Layout  className="site-layout-background" style={{ padding: '24px 0'}}  >                   
+                        <Sider className="site-layout-background" width={300} style={{ padding: '24 0 px', marginLeft: '0vw' }} >
+                            {/* Display heatmap graph at bottom */}
+                            <Menu
+                                mode="inline"
+                                defaultSelectedKeys={[]}
+                                style={{ height: '100%', borderRight: 0, }}
+                                onSelect={this.handleTypeChange}
+                                >
+                                <Button theme="secondary" style={{ marginTop: '1vh' }} size='30' block> Select a Type: </Button>
+                                <Menu.Item key='Style' >Style</Menu.Item>
+                                <Menu.Item key='School' >School</Menu.Item>
+                                <Menu.Item key='Theme' >Theme</Menu.Item>
+                                <Menu.Item key='Technique' >Technique</Menu.Item>
+                                <Menu.Item key='Keyword' >Keyword</Menu.Item>
+                                <Menu.Item key='Place Executed' >Place</Menu.Item>
+                                <Button theme="secondary" style={{ marginTop: '1vh' }} size='30' block onClick = {this.updateBarChart}> Explore: </Button>
+                            </Menu>
+                        </Sider>
+                            <Content className="site-layout-background" style={{ padding: 24, margin: 0, minHeight: 280 }} >
+                                <Form style={{ width: '80vw', margin: '0 auto', minHeight: 280, marginTop: '5 vh' }}>
+                                    {this.barChart(this.state.termsSelections)}
+                                </Form>
+                            </Content>
+                         </Layout>
 
             </div>
 
