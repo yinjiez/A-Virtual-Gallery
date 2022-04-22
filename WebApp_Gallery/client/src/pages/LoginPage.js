@@ -1,4 +1,5 @@
 import React from 'react';
+import ParticlesBg from 'particles-bg'
 import {
   Table,
   Pagination,
@@ -6,155 +7,124 @@ import {
 } from 'antd'
 
 import MenuBar from '../components/MenuBar';
-import { getAllMatches, getAllPlayers } from '../fetcher'
-const { Column, ColumnGroup } = Table;
-const { Option } = Select;
+//import { getAllMatches, getAllPlayers } from '../fetcher'
 
-
-const playerColumns = [
-  {
-    title: 'Name',
-    dataIndex: 'Name',
-    key: 'Name',
-    sorter: (a, b) => a.Name.localeCompare(b.Name),
-    render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
-  },
-  {
-    title: 'Nationality',
-    dataIndex: 'Nationality',
-    key: 'Nationality',
-    sorter: (a, b) => a.Nationality.localeCompare(b.Nationality)
-  },
-  {
-    title: 'Rating',
-    dataIndex: 'Rating',
-    key: 'Rating',
-    sorter: (a, b) => a.Rating - b.Rating
-    
-  },
-  // TASK 7: add a column for Potential, with the ability to (numerically) sort ,
-  {
-    title: 'Potential',
-    dataIndex: 'Potential',
-    key: 'Potential',
-    sorter: (a, b) => a.Potential - b.Potential
-  },
-  // TASK 8: add a column for Club, with the ability to (alphabetically) sort 
-  {
-    title: 'Club',
-    dataIndex: 'Club',
-    key: 'Club',
-    sorter: (a, b) => a.Club.localeCompare(b.Club)
-  },
-  // TASK 9: add a column for Value - no sorting required
-  {
-    title: 'Value',
-    dataIndex: 'Value',
-    key: 'Value'
-  }
-];
 
 class LoginPage extends React.Component {
 
   constructor(props) {
     super(props)
-
-    this.state = {
-      matchesResults: [],
-      matchesPageNumber: 1,
-      matchesPageSize: 10,
-      playersResults: [],
-      pagination: null  
-    }
-
-    this.leagueOnChange = this.leagueOnChange.bind(this)
-    this.goToMatch = this.goToMatch.bind(this)
-  }
-
-
-  goToMatch(matchId) {
-    window.location = `/matches?id=${matchId}`
-  }
-
-  leagueOnChange(value) {
-    // TASK 2: this value should be used as a parameter to call getAllMatches in fetcher.js with the parameters page and pageSize set to null
-    // then, matchesResults in state should be set to the results returned - see a similar function call in componentDidMount()
-    /** function declaration (fetcher.js): getAllMatches = async (page, pagesize, league) */
-    // `value` arg of this function should be passed as arg in position of `league` into getAllMatches()
-    getAllMatches(null, null, value).then(res => {
-      this.setState({ matchesResults: res.results })
-    })
   }
 
   componentDidMount() {
-    getAllMatches(null, null, 'D1').then(res => {
-      this.setState({ matchesResults: res.results })
-    })
-
-    getAllPlayers().then(res => {
-      console.log(res.results)
-      // TASK 1: set the correct state attribute to res.results
-      this.setState({playersResults: res.results})
-      // recall in routes.js, all functions return query results in k/v-pairs of [results: queryResults] 
-      // so res.results here is deferencing this k/v-pair to get the value ==> queryResults
-
-    })
   }
 
 
   render() {
-
     return (
-      <div>
-        <MenuBar />
-        
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>Players</h3>
-          <Table dataSource={this.state.playersResults} columns={playerColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
+      <>
+        <div>...
+            <MenuBar />
+            <div class="upper">
+              <div class="logo">
+                <a href="#">
+                  <img src="../assets/logo.png" class="img-logo"/>
+                </a>
+              </div>
+              <div class="login-div">
+                <form class="login">
+                  <h1>Sign In</h1>
+                  <div class="input-text">
+                      <input type="text" id="inputEmail" name="email" placeholder="Email or phone number" />
+                      <div class="warning-input" id="warningEmail">
+                        Please enter a valid email or phone number.
+                      </div>
+                  </div>
+                
+                  <div class="input-text">
+                    <input type="password" id="inputPassword" name="password" placeholder="Password" />
+                    <div class="warning-input" id="warningPassword">
+                        Your password must contain between 4 and 60 characters.
+                    </div>
+                  </div>
+                
+                  <div>
+                    <button class="signin-button">Sign In</button>
+                  </div>
+                  <div class="remember-flex">
+                    <div>
+                        <input type="checkbox" />
+                        <label class="color_text">Remember me</label>
+                    </div>
+                    <div class="help">
+                        <a class="color_text" href="#">Need help?</a>
+                    </div>
+                  </div>
+                  <div class="login-face">
+                    <img src="../assets/fb.svg" height="20"/><a href="#" class="color_link log_face">Login with Facebook</a>
+                  </div>
+                  <div class="new-members">
+                    New to DataOmni? <a href="#" class="signup-link">Sign up now</a>.
+                  </div>
+                  <div class="protection color_link help">
+                    This page is protected by Google reCAPTCHA to ensure you're not a bot. <a href="#">Learn more.</a>
+                  </div>
+                </form>
+              </div>
+            </div> 
         </div>
-        
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-          <h3>Matches</h3>
-          <Select defaultValue="D1" style={{ width: 120 }} onChange={this.leagueOnChange}>
-            <Option value="D1">Bundesliga</Option>
-             {/* TASK 3: Take a look at Dataset Information.md from MS1 and add other options to the selector here  */}
-            <Option value="SP1">La Liga</Option>
-            <Option value="F1">Ligue 1</Option>
-            <Option value="I1">Serie A</Option>
-            <Option value="E0">Premier League</Option>
-          </Select>
-          
-          <Table onRow={(record, rowIndex) => { return {
-                                                  onClick: event => {this.goToMatch(record.MatchId)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
-                                                };
-                                              }} 
-                  dataSource={this.state.matchesResults} 
-                  pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}>
-                  <ColumnGroup title="Teams">
-                    {/* TASK 4: correct the title for the 'Home' column and add a similar column for 'Away' team in this ColumnGroup */}
-                    <Column title="H" dataIndex="Home" key="Home" sorter= {(a, b) => a.Home.localeCompare(b.Home)}/> {/* localeCompare() is a JS string method, that compare string a & b */}
-                    <Column title="A" dataIndex="Away" key="Away" sorter= {(a, b) => a.Away.localeCompare(b.Away)}/>
-                  </ColumnGroup>
-                                  
-                  <ColumnGroup title="Goals">
-                    {/* TASK 5: add columns for home and away goals in this ColumnGroup, with the ability to sort values in these columns numerically */}
-                    <Column title="HomeGoals" dataIndex="HomeGoals" key="HomeGoals" sorter= {(a, b) => a.HomeGoals - b.HomeGoals}/>
-                    <Column title="AwayGoals" dataIndex="AwayGoals" key="AwayGoals" sorter= {(a, b) => a.AwayGoals - b.AwayGoals}/>
-                  </ColumnGroup>
-                  
-                  {/* TASK 6: create two columns (independent - not in a column group) for the date and time. Do not add a sorting functionality */}
-                  <Column title="Date" dataIndex="Date" key="Date"/>
-                  <Column title="Time" dataIndex="Time" key="Time"/>
-          </Table>
-
+        <div class="bottom">
+        <div class="bottom-width">
+            Questions? Call <a href="tel:1-844-542-4813" class="tel-link">1-844-542-4813</a>
+            <div>
+                <ul class="bottom-flex">
+                    <li class="list-bottom">
+                        <a href="#" class="link-bottom">
+                            FAQ
+                        </a>
+                    </li>
+                    <li class="list-bottom">
+                        <a href="#" class="link-bottom">
+                            Help Center
+                        </a>
+                    </li>
+                    <li class="list-bottom">
+                        <a href="#" class="link-bottom">
+                            Terms of Use
+                        </a>
+                    </li>
+                    <li class="list-bottom">
+                        <a href="#" class="link-bottom">
+                            Privacy
+                        </a>
+                    </li>
+                    <li class="list-bottom">
+                        <a href="#" class="link-bottom">
+                            Cookie Preferences
+                        </a>
+                    </li>
+                    <li class="list-bottom">
+                      <a href="#" class="link-bottom">
+                            Corporate information
+                      </a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <select class="fa select-language">
+                    <option> &#xf0ac; &nbsp;&nbsp;&nbsp;English</option>
+                    <option> &#xf0ac; &nbsp;&nbsp;&nbsp;Fran&ccedil;ais</option>
+                </select>
+            </div>
         </div>
-
-
-      </div>
+        </div>
+              
+        <ParticlesBg type="circle" bg={true} />
+      </>
     )
   }
 
 }
 
-export default HomePage
+export default LoginPage
 

@@ -14,6 +14,7 @@ import "shards-ui/dist/css/shards.min.css"
 import ArtworkPage from './pages/ArtworkPage';
 import SearchPage from './pages/SearchPage';
 import AnalysisPage from './pages/AnalysisPage';
+import LoginPage from './pages/LoginPage';
 
 ReactDOM.render(
   <div>
@@ -29,7 +30,11 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/> 
-
+		<Route exact
+							path="/login"
+							render={() => (
+								<LoginPage />
+							)}/> 
 		<Route exact
 							path="/artwork"
 							render={() => (

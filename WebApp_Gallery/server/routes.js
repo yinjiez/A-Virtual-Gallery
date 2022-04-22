@@ -620,73 +620,73 @@ async function artworkInfo(req, res) {
 
      // 1) query for part 1 of the result
      let queryStr1= `
-     SELECT OT.term, COUNT(*) AS StyleCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Style'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      ` ;
      const resStyle = await connection.query(queryStr1).catch(err => {throw err});
  
      // 2) query for part 2 of the result
      let queryStr2= `
-     SELECT OT.term, COUNT(*) AS SchoolCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'School'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resSchool = await connection.query(queryStr2).catch(err => {throw err});
  
      // 3) query for part 3 of the result
      let queryStr3 = `
-     SELECT OT.term, COUNT(*) AS TechniqueCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Technique'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resTechnique = await connection.query(queryStr3).catch(err => {throw err});
      
      // 4) query for part 4 of the result
      let queryStr4 = `
-     SELECT OT.term, COUNT(*) AS ThemeCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Theme'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resTheme = await connection.query(queryStr4).catch(err => {throw err});
      
      // 5) query for part 5 of the result
      let queryStr5 = `
-     SELECT OT.term, COUNT(*) AS KeywordCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Keyword'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resKeyword = await connection.query(queryStr5).catch(err => {throw err});
 
 
      // 6) query for part 5 of the result
      let queryStr6 = `
-     SELECT OT.term, COUNT(*) AS PlaceExecutedCounts
+     SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
      WHERE OT.termType = 'Place Executed'
      GROUP BY OT.term
      ORDER BY COUNT(*) DESC
-     LIMIT 5
+     LIMIT 80
      `;
      const resPlaceExecuted = await connection.query(queryStr6).catch(err => {throw err});
 
      // 7) return all three parts together as a JSON object
-     res.json( { Overview: resOverview, Style: resStyle, School: resSchool, Theme: resTheme, Technique: resTechnique, Keyword: resKeyword, PlaceExecuted: resPlaceExecuted } );
+     res.json( {Style: resStyle, School: resSchool, Theme: resTheme, Technique: resTechnique, Keyword: resKeyword, PlaceExecuted: resPlaceExecuted } );
 
 };
 
@@ -718,7 +718,7 @@ async function artworkInfo(req, res) {
     if (req.query.page && !isNaN(req.query.page)) {
         // This is the case where page is defined.
         let queryStr = `
-        SELECT OT.term, COUNT(*) AS termCounts
+        SELECT OT.term AS name, COUNT(*) AS value
         FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
         WHERE OT.termType = '${analysisType}'
         GROUP BY OT.term
@@ -741,7 +741,7 @@ async function artworkInfo(req, res) {
         // if "page" is not defined (even if "pagesize" is defined, this block of code will get executed)
         
         let queryStr = `
-        SELECT OT.term, COUNT(*) AS termCounts
+        SELECT OT.term AS name, COUNT(*) AS value
         FROM objects O JOIN objects_terms OT ON O.objectID = OT.objectID
         WHERE OT.termType = '${analysisType}'
         GROUP BY OT.term

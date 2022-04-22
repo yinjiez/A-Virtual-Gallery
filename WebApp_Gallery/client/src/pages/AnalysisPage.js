@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FormInput, FormGroup, Badge, CardBody, CardTitle, Progress, CardImgOverlay } from "shards-react";
-import { WordCloud, Heatmap } from '@ant-design/plots';
+import { Button as Button2} from "shards-react";
+import { WordCloud, Bar} from '@ant-design/plots';
 
 import {
     Table,
+    Button,
     Row,
     Col,
     Divider,
@@ -14,15 +15,12 @@ import {
     Input,
     Form,
     Card,
-    Button,
     Tooltip
 
 } from 'antd'
 
 import ItemsCarousel from 'react-items-carousel';
 import {Link, Redirect} from 'react-router-dom';
-
-import { getArtwork, getSimilarArtworks } from '../fetcher'
 import { getAnalysisOverview, getAnalysisByType, getPortraitsAcrossTime } from '../fetcher'
 
 import MenuBar from '../components/MenuBar';
@@ -35,76 +33,6 @@ const { SubMenu } = Menu;
 const { Title } = Typography;
 const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
-
-// Keywords chart pre-setup: to return keyword map
-const DemoWordCloud = () => {
-    const [data, setData] = useState([]);
-  
-    useEffect(() => {
-      asyncFetch();
-    }, []);
-  
-    const asyncFetch = () => {
-      fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/antv-keywords.json')
-        .then((response) => response.json())
-        .then((json) => setData(json))
-        .catch((error) => {
-          console.log('fetch data failed', error);
-        });
-    };
-    const config = {
-      data,
-      wordField: 'name',
-      weightField: 'value',
-      colorField: 'name',
-      wordStyle: {
-        fontFamily: 'Verdana',
-        fontSize: [8, 32],
-        rotation: 0,
-      },
-
-      random: () => 0.5,
-    };
-  
-    return <WordCloud {...config} />;
-  };  
-
-
-
-//   Pre-setup for heatmap
-const DemoHeatmap = () => {
-    const [data, setData] = useState([]);
-  
-    useEffect(() => {
-      asyncFetch();
-    }, []);
-  
-    const asyncFetch = () => {
-      fetch('https://gw.alipayobjects.com/os/basement_prod/a719cd4e-bd40-4878-a4b4-df8a6b531dfe.json')
-        .then((response) => response.json())
-        .then((json) => setData(json))
-        .catch((error) => {
-          console.log('fetch data failed', error);
-        });
-    };
-    const config = {
-      width: 650,
-      height: 500,
-      autoFit: false,
-      data,
-      xField: 'Month of Year',
-      yField: 'District',
-      colorField: 'AQHI',
-      color: ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'],
-      meta: {
-        'Month of Year': {
-          type: 'cat',
-        },
-      },
-    };
-  
-    return <Heatmap {...config} />;
-  };
 
 //horizonal scroll implementation
 
@@ -184,11 +112,16 @@ class AnalysisPage extends React.Component {
             p4: [], //6 portraits from 18th century (1700 -1799)
             p5: [], //6 portraits from 19th century (1800 -1899)
             p6: [], //6 portraits from 20th century (1900 -1999)
-            k: 0
+            k: 0,
+            keywordSelections: [],
+            type: '',
+            termsSelections: []
         }
     
     this.shufflePortraitSet = this.shufflePortraitSet.bind(this)
     this.goToArtwork = this.goToArtwork.bind(this)
+    this.updateBarChart = this.updateBarChart.bind(this)
+    this.handleTypeChange = this.handleTypeChange.bind(this)
 
     }
 
@@ -213,6 +146,54 @@ class AnalysisPage extends React.Component {
         this.setState({ portraitSet: temp})
     }
 
+    handleTypeChange(event){
+        this.setState({type: event.key})
+    }
+
+    keywordGraph = (dataset) => {
+
+        const config = {
+          data: dataset,
+          wordField: 'name',
+          weightField: 'value',
+          colorField: 'name',
+          wordStyle: {
+            fontFamily: 'Verdana',
+            fontSize: [12, 38],
+            rotation: 0,
+          },
+    
+          random: () => 0.5,
+        };
+      
+        return <WordCloud {...config} />;
+      }; 
+      
+      barChart = (dataset) => {
+        const config = {
+            data: dataset,
+            xField: 'value',
+            yField: 'name',
+            seriesField: 'name',
+            legend: false,
+        };
+        return <Bar {...config} />;
+    };
+
+
+    updateBarChart() {
+        getAnalysisByType(this.state.type, 1, 15).then(res => {
+            var jsonObj = {}
+            var keys = []
+            for (let i = 0; i < res.results.length; i++) {
+                jsonObj = res.results[i]
+                keys.push(jsonObj)
+            }
+            this.setState({ termsSelections: keys })
+        })
+    }
+
+
     componentDidMount() {
 
         Promise.all([
@@ -231,6 +212,48 @@ class AnalysisPage extends React.Component {
             this.setState({ p6: r6.results}) //store 5 portraits from 20th century
             this.setState({ portraitSet: [this.state.p1[0], this.state.p2[0],  this.state.p3[0], this.state.p4[0],this.state.p5[0], this.state.p6[0]]}) //push the 1st item of each period into the display set
         })
+
+        getAnalysisOverview().then(res => {
+            var jsonObj = {}
+            var keys = []
+            for (let i = 0; i < res.Style.length; i++) {
+                jsonObj = res.Style[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.School.length; i++) {
+                jsonObj = res.School[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.Theme.length; i++) {
+                jsonObj = res.Theme[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.Technique.length; i++) {
+                jsonObj = res.Technique[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.Keyword.length; i++) {
+                jsonObj = res.Keyword[i]
+                keys.push(jsonObj)
+            }
+            for (let i = 0; i < res.PlaceExecuted.length; i++) {
+                jsonObj = res.PlaceExecuted[i]
+                keys.push(jsonObj)
+            }
+            
+            this.setState({ keywordSelections: keys })
+        })
+
+        getAnalysisByType('Keyword', 1, 15).then(res => {
+            var jsonObj = {}
+            var keys = []
+            for (let i = 0; i < res.results.length; i++) {
+                jsonObj = res.results[i]
+                keys.push(jsonObj)
+            }
+            this.setState({ termsSelections: keys })
+        })
+        
     }
 
     render() {
@@ -239,28 +262,13 @@ class AnalysisPage extends React.Component {
                 <MenuBar />
 
                 <Divider>
-                        {/* Have two graphs in one row */}
-                        {/* <Form style={{ width: '80vw', margin: '0 auto', marginTop: '2vh', marginBottom: '2vh' }}>
-                        <Row gutter={200} justify="space-around" align="middle">
-                                <Col flex={1}><FormGroup style={{ width: '30vw', margin: '0 auto' }}>
-                                    <label>Keywords:</label>
-                                    <DemoWordCloud />
-                                </FormGroup></Col>
-                                <Col flex={1}><FormGroup style={{ width: '30vw', margin: '0 auto' }}>
-                                    <label>Heatmap:</label>
-                                    <DemoHeatmap />
-                                </FormGroup></Col>
-                            </Row>
-                        </Form> */}
                         {/* Display keyword graph on top */}
                     <Row justify="space-around" align="middle">
                         <Title level={2}>Collections Keywords</Title>
                     </Row>
-                    <Form style={{ width: '60vw', margin: '0 auto', minHeight: 280}}>
-                        <DemoWordCloud />
-                    </Form>
-                                                      
-                        
+                    <Form style={{ width: '80vw', margin: '0 auto', minHeight: 400}}>
+                        {this.keywordGraph(this.state.keywordSelections)}
+                    </Form>        
                 </Divider>
 
                 <Row justify="space-around" align="middle">
@@ -289,70 +297,38 @@ class AnalysisPage extends React.Component {
                     </div></a>)}
                 </ItemsCarousel></div>
                 
-
-                 {/* Artworks in different region*/}
-                 {/* <Divider>
-                    <Row style={{ padding: '0 24px', minHeight: 10 }}></Row>
-                    <Layout className="site-layout-background" style={{ padding: '0 50px' }}>
-                        <Content className="site-layout-content" style={{ padding: '0 50px', minHeight: 280 }}>
-                            <Form style={{ width: '80vw', margin: '0 auto', marginTop: '2vh', marginBottom: '2vh' }}>
-                                <Row style={{ padding: '0 24px', minHeight: 10 }}>
-                                    <Row justify="space-around" align="middle">
-                                        <Title level={3}>Artwork Collections In Different Regions</Title>
-                                    </Row>
-                                    <Row gutter={200} justify="space-around" align="middle">
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                        <Col span={1}>
-                                            <Card hoverable={true}
-                                                style={{ width: 200 }}
-                                                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />} onClick={() => this.goToArtwork(this.state.selectedObjectID)}
-                                            >
-                                                <Meta title="Europe Street beat" />
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                    <Row style={{ padding: '0 24px', minHeight: 30 }}></Row>
-                                </Row>
-                            </Form>
-                        </Content>
-                    </Layout>
-                </Divider> */}
-
-                {/* Display heatmap */}
-                <Divider>
-                        {/* Display heatmap graph at bottom */}
-                    <Row style={{ padding: '0 24px', minHeight: 50 }}></Row>
+                {/* Display bar chart */}
+           
+                <Row style={{ padding: '0 24px', minHeight: 50 }}></Row>
                     <Row justify="space-around" align="middle">
-                        <Title level={2}>Collections Distribution</Title>
+                        <Title level={2}>Collections Distribution by Type</Title>
                     </Row>
-                    <Form style={{ width: '100vw', margin: '0 auto', minHeight: 280, marginTop: '5 vh'}}>
-                        {/* <DemoHeatmap /> */}
-                    </Form>
-                                                      
-                </Divider>
+                    
+                    <Layout  className="site-layout-background" style={{ padding: '24px 0'}}  >                   
+                        <Sider className="site-layout-background" width={300} style={{ padding: '24 0 px', marginLeft: '0vw' }} >
+                            {/* Display heatmap graph at bottom */}
+                            <Menu
+                                mode="inline"
+                                defaultSelectedKeys={[]}
+                                style={{ height: '100%', borderRight: 0, }}
+                                onSelect={this.handleTypeChange}
+                                >
+                                <Button2 theme="secondary" style={{ marginTop: '1vh' }} size='30' block> Select a Type: </Button2>
+                                <Menu.Item key='Style' >Style</Menu.Item>
+                                <Menu.Item key='School' >School</Menu.Item>
+                                <Menu.Item key='Theme' >Theme</Menu.Item>
+                                <Menu.Item key='Technique' >Technique</Menu.Item>
+                                <Menu.Item key='Keyword' >Keyword</Menu.Item>
+                                <Menu.Item key='Place Executed' >Place</Menu.Item>
+                                <Button2 theme="secondary" style={{ marginTop: '1vh' }} size='30' block onClick = {this.updateBarChart}> Explore: </Button2>
+                            </Menu>
+                        </Sider>
+                            <Content className="site-layout-background" style={{ padding: 24, margin: 0, minHeight: 280 }} >
+                                <Form style={{ width: '80vw', margin: '0 auto', minHeight: 280, marginTop: '5 vh' }}>
+                                    {this.barChart(this.state.termsSelections)}
+                                </Form>
+                            </Content>
+                         </Layout>
 
             </div>
 

@@ -1,12 +1,122 @@
 import React, { useState, useEffect } from 'react';
 import { getOverview } from '../fetcher'
 import MenuBar from '../components/MenuBar';
-import {Row, Typography, Button} from 'antd'
+import {Row, Typography, Button, Divider, Form} from 'antd'
 import {Link, Redirect} from 'react-router-dom';
 
 
 import Slider from 'react-animated-slider';
 import 'react-animated-slider/build/horizontal.css';
+
+import DataSet from '@antv/data-set'
+import { Chart } from '@antv/g2'
+
+const { Title } = Typography;
+
+//prepare map
+
+const ArtMap = () => {
+    const [data, setData] = useState([]);
+    // const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        getChartData();
+    }, []);
+
+    const bubbleData = [
+        { 'Artwork Country of Origin': 'Italy', 'Number of Artwork in Collections': 892 },
+        { 'Artwork Country of Origin': 'United States of America', 'Number of Artwork in Collections': 4917 },
+        { 'Artwork Country of Origin': 'Austria', 'Number of Artwork in Collections': 77 },
+        { 'Artwork Country of Origin': 'Belgium', 'Number of Artwork in Collections': 196 },
+        { 'Artwork Country of Origin': 'Czech Republic', 'Number of Artwork in Collections': 113 },
+        { 'Artwork Country of Origin': 'United Kingdom', 'Number of Artwork in Collections': 700 },
+        { 'Artwork Country of Origin': 'Canada', 'Number of Artwork in Collections': 24 },
+        { 'Artwork Country of Origin': 'China', 'Number of Artwork in Collections': 7 },
+        { 'Artwork Country of Origin': 'Denmark', 'Number of Artwork in Collections': 14 },
+        { 'Artwork Country of Origin': 'Netherlands', 'Number of Artwork in Collections': 416 },
+        { 'Artwork Country of Origin': 'France', 'Number of Artwork in Collections': 1165 },
+        { 'Artwork Country of Origin': 'Germany', 'Number of Artwork in Collections': 737 },
+        { 'Artwork Country of Origin': 'Japan', 'Number of Artwork in Collections': 65 },
+        { 'Artwork Country of Origin': 'Mexico', 'Number of Artwork in Collections': 25 },
+        { 'artwork country of origin': 'Norway', 'Number of Artwork in Collections': 5 },
+        { 'artwork country of origin': 'Rassia', 'Number of Artwork in Collections': 45 },
+        { 'artwork country of origin': 'Spain', 'Number of Artwork in Collections': 50 },
+        { 'artwork country of origin': 'Sweden', 'Number of Artwork in Collections': 22 },
+        { 'artwork country of origin': 'Switzerland', 'Number of Artwork in Collections': 110 },
+      ];
+
+    const getChartData = () => {
+        fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/world.geo.json')
+            .then((res) => res.json())
+            .then((data) => {
+                const ds = new DataSet();
+                const dv = ds.createView('back').source(data, {
+                    type: 'GeoJSON',
+                });
+                const userData = bubbleData
+                const userDv = ds
+                    .createView()
+                    .source(userData)
+                    .transform({
+                        geoDataView: dv,
+                        field: 'Artwork Country of Origin',
+                        type: 'geo.centroid',
+                        as: ['longitude', 'latitude'],
+                    });
+                const chart = new Chart({
+                    container: 'container',
+                    autoFit: true,
+                    height: 500,
+                });
+                chart.scale({
+                    longitude: {
+                        sync: true,
+                    },
+                    latitude: {
+                        sync: true,
+                    },
+                });
+                chart.axis(false);
+
+                chart.legend(false);
+                chart.tooltip({
+                    showTitle: false,
+                    showMarkers: false,
+                });
+                const bgView = chart.createView();
+                bgView.data(dv.rows);
+                bgView.tooltip(false);
+                bgView
+                    .polygon()
+                    .position('longitude*latitude')
+                    .color('#cbd0d1')
+                    .style({
+                        lineWidth: 1,
+                        stroke: '#d8e3e6',
+                    });
+
+                const userView = chart.createView();
+                userView.data(userDv.rows);
+                userView
+                    .point()
+                    .position('longitude*latitude')
+                    .color('#e65c1ddb')
+                    .tooltip('Artwork Country of Origin*Number of Artwork in Collections')
+                    .shape('circle')
+                    // .label('name', {offset: 0, style:{lineWidth: 1, stroke: '#5c1ddb',}})
+                    .size('Number of Artwork in Collections', [8, 25])
+                    .style({
+                        lineWidth: 1,
+                        stroke: '#e65c1ddb',
+                    });
+                    userView.interaction('element-active');
+                    chart.render()
+            });  
+    };
+    
+    // return <div id="container">{isLoading ? "...loading" : data}</div>;
+    return <div id="container">{data}</div>;
+};
 
 class HomePage extends React.Component {
     constructor(props) {
@@ -84,6 +194,17 @@ class HomePage extends React.Component {
                         <Button ghost><Link to={`/analysis`}>Enjoy</Link></Button></Typography.Title>
                     </div></div>
                 </Slider>
+
+                <Divider>
+                    <Form style={{ width: '80vw', margin: '0 auto', minHeight: 600 }}>
+                    <Row justify="space-around" align="middle">
+                        <Title level={2}>Collections Around the World</Title>
+                    </Row>
+                        {/* console.log(<ArtMap />) */}
+                        <ArtMap />
+                    </Form>
+                </Divider>
+
             </div>
 
         )
