@@ -23,17 +23,17 @@ class LoginPage extends React.Component {
   render() {
     return (
       <>
-        <div>...
-            <MenuBar />
+      <MenuBar />
+      <center>
             <div class="upper">
               <div class="logo">
                 <a href="#">
-                  <img src="../assets/logo.png" class="img-logo"/>
+                  <img src="../../public/mona-lisa.png" class="img-logo"/>
                 </a>
               </div>
               <div class="login-div">
                 <form class="login">
-                  <h1>Sign In</h1>
+                  <h3>Sign In</h3>
                   <div class="input-text">
                       <input type="text" id="inputEmail" name="email" placeholder="Email or phone number" />
                       <div class="warning-input" id="warningEmail">
@@ -60,22 +60,15 @@ class LoginPage extends React.Component {
                         <a class="color_text" href="#">Need help?</a>
                     </div>
                   </div>
-                  <div class="login-face">
-                    <img src="../assets/fb.svg" height="20"/><a href="#" class="color_link log_face">Login with Facebook</a>
-                  </div>
                   <div class="new-members">
                     New to DataOmni? <a href="#" class="signup-link">Sign up now</a>.
-                  </div>
-                  <div class="protection color_link help">
-                    This page is protected by Google reCAPTCHA to ensure you're not a bot. <a href="#">Learn more.</a>
                   </div>
                 </form>
               </div>
             </div> 
-        </div>
         <div class="bottom">
-        <div class="bottom-width">
-            Questions? Call <a href="tel:1-844-542-4813" class="tel-link">1-844-542-4813</a>
+          <div class="bottom-width">
+            Questions? Call <a href="tel:1-800-000-0000" class="tel-link">1-800-000-0000</a>
             <div>
                 <ul class="bottom-flex">
                     <li class="list-bottom">
@@ -103,11 +96,6 @@ class LoginPage extends React.Component {
                             Cookie Preferences
                         </a>
                     </li>
-                    <li class="list-bottom">
-                      <a href="#" class="link-bottom">
-                            Corporate information
-                      </a>
-                    </li>
                 </ul>
             </div>
             <div>
@@ -116,11 +104,12 @@ class LoginPage extends React.Component {
                     <option> &#xf0ac; &nbsp;&nbsp;&nbsp;Fran&ccedil;ais</option>
                 </select>
             </div>
+          </div>
         </div>
-        </div>
-              
-        <ParticlesBg type="circle" bg={true} />
-      </>
+      </center>
+            
+    <ParticlesBg num={200} type="cobweb" bg={true} /> 
+    </>
     )
   }
 
