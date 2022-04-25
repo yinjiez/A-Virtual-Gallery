@@ -213,6 +213,27 @@ CREATE TABLE objects_text_entries (
 
 SELECT COUNT(*) FROM objects_text_entries;
 
+/* -----------------------------------------------------------*/
+/* 9) TABLE: accounts--------------------------------------------*/
+/* -----------------------------------------------------------*/
+-- Size: ( n x 2 ) ------------------
+CREATE TABLE accounts (
+    email varchar(100) NOT NULL,
+    password varchar(255) NOT NULL,
+    PRIMARY KEY(email)
+) character set utf8mb4 collate utf8mb4_bin;
+
+/* -----------------------------------------------------------*/
+/* 10) TABLE: user_collections--------------------------------*/
+/* -----------------------------------------------------------*/
+-- Size: ( n x 2 ) ------------------
+CREATE TABLE user_collections (
+    objectID int NOT NULL,
+    email varchar(100) NOT NULL,
+    PRIMARY KEY(objectID, email),
+    FOREIGN KEY(objectID) REFERENCES objects(objectID),
+    FOREIGN KEY(email) REFERENCES accounts(email)
+) character set utf8mb4 collate utf8mb4_bin;
 
 # ####################################################################
 -- --------- Checking AWS RDS MySQL instance Storage Space ---------
