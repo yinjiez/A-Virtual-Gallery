@@ -21,6 +21,42 @@ connection.query = util.promisify(connection.query).bind(connection);
 // establish the connection to database
 connection.connect();
 
+// mapping nationality to corresponding country/region in world geo json file hosted on the following URL
+// https://gw.alipayobjects.com/os/antvdemo/assets/data/world.geo.json
+const regionCoverter = {
+    "American": "United States of America",
+    French: "France",
+    German: "Germany",
+    Italian: "Italy",
+    British: "United Kingdom",
+    Dutch: "Netherlands",
+    Netherlandish: "Netherlands",
+    Flemish: "Belgium",
+    Scottish: "United Kingdom",
+    Spanish: "Spain",
+    Swiss: "Switzerland",
+    Russian: "Russia",
+    Czech: "Czech Republic",
+    Austrian: "Austria",
+    Japanese: "Japan",
+    Bohemian: "Czech Republic",
+    English: "United Kingdom",
+    Norwegian: "Norway",
+    Mexican: "Mexico",
+    Swedish: "Sweden",
+    Belgian: "Belgium",
+    Danish: "Denmark",
+    Canadian: "Canada",
+    Chinese: "China"
+};
+
+// How-to-do: https://stackoverflow.com/questions/19253753/javascript-find-json-value
+// https://stackoverflow.com/questions/20804163/check-if-a-key-exists-inside-a-json-object
+function nationalityToRegion(input){
+    if (regionCoverter[input]){
+        return regionCoverter[input];
+    } else return null;
+};
 
 // #######################################
 // ############# IRIS ####################
@@ -30,15 +66,57 @@ connection.connect();
  * ***************************************
  * query and return for gallery summary statistics
  * i.e. there are 3800+ paintings, 30000+ drawings, 70000+ prints..
+ * 
+ * * ex. (defualt) http://localhost:8080/home
  */
 async function galleryOverview(req, res) {
     
+    // 1) get counts for each classification
     let queryStr = `
     SELECT classification, count(*) as artworkCounts
     FROM objects
     GROUP BY classification;`;
+    const p1 = await connection.query(queryStr).catch(err => {throw err});
+
+
+    // 2) get all the known geographical origin of artwork (i.e. by artist's nationality)
+    let queryStr2 = `
+    SELECT visualBrowserNationality AS nationality, COUNT(DISTINCT O.objectID) AS artworkCounts
+    FROM objects O JOIN objects_constituents OC JOIN constituents C
+        ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID
+    GROUP BY C.visualBrowserNationality
+    ORDER BY COUNT(*) DESC ;
+    `;
+    const p2 = await connection.query(queryStr2).catch(err => {throw err});
+    //console.log(JSON.stringify(p2));
+    //console.log(p2.length);
+    var OriginCount = {};
+    if (p2){
+        for (var i = 0; i < p2.length; i++){
+            var regionName = nationalityToRegion(p2[i].nationality);
+            // if this nationality can be converted to a region existing on WorldMap.geo.json
+            if ( regionName ){
+                if (OriginCount[regionName]){
+                    OriginCount[regionName] += p2[i].artworkCounts;
+                } else {
+                OriginCount[regionName] = p2[i].artworkCounts;
+                };
+            };
+        };
+    };
+
+    //Reference: 
+    // https://www.microverse.org/blog/how-to-loop-through-the-array-of-json-objects-in-javascript
+    // https://www.programiz.com/javascript/examples/add-key-object
+    // https://stackoverflow.com/questions/4933217/print-json-parsed-object
     
+    // 3) return all parts together as a JSON object
+    const strWelcome = "Welcome to DataOmni's Virtual Gallery (powered by National Gallery of Art)!"
+    res.json( {msg: strWelcome, results: p1, ArtworkOrigins: OriginCount} );
+    //res.json( {msg: strWelcome, results: p1, nationalityCount: p2, ArtworkOrigin: OriginCount} );
+
     // a GET request to URL: /home
+    /*
     connection.query( queryStr, 
             function (error, results, fields) {
             // if the query action results in ERORR rising, output the error message to console display
@@ -52,6 +130,7 @@ async function galleryOverview(req, res) {
             }
         }
     );
+    */
 };
 
 // #######################################
@@ -105,7 +184,6 @@ async function artworkInfo(req, res) {
     FROM objects_terms OT
     WHERE OT.objectID = ${objectID}
     ORDER BY termType;` ;
-
     const p3 = await connection.query(queryStr3).catch(err => {throw err});
     
     // 4) return all three parts together as a JSON object
@@ -814,6 +892,15 @@ async function artworkInfo(req, res) {
 
 };
 
+/** **************************************
+ * Route 11 (handler) -
+ * ***************************************
+ * URL query parameter `?beginYear=xxxx&endYear=xxxx&page=x&pagesize=5`
+ * 
+ */
+async function mapInfo(req, res) {
+
+};
 
 
 module.exports = {
