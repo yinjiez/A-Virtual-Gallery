@@ -13,16 +13,55 @@ import { Chart } from '@antv/g2'
 
 const { Title } = Typography;
 
-//prepare map
 
+//prepare map
 const ArtMap = () => {
+    
     const [data, setData] = useState([]);
     // const [isLoading, setIsLoading] = useState(false);
-
+    
+    /*
+    useEffect( () => {
+        console.log("into dynamicData");
+        getOverview().then(res => {
+            var dynamicData = [];
+            console.log(res);
+            for (let x in res.ArtworkOrigins){
+                console.log(x);
+                dynamicData.push({
+                    "Country of Origin": x,
+                    "Artwork Counts in Our Gallery": res.ArtworkOrigins[x]
+                });
+            };
+            setMarkerData(dynamicData);
+        });
+        
+        //https://stackoverflow.com/questions/56905265/displaying-node-mysql-results-in-react-using-state
+        // https://www.microverse.org/blog/how-to-loop-through-the-array-of-json-objects-in-javascript
+        //https://www.storyblok.com/tp/react-dynamic-component-from-json
+        //https://www.youtube.com/watch?v=4cliojOu3as
+        // Mixing React-Components & React-Hook: https://reactjs.org/docs/hooks-faq.html
+    }, [markerData]);
+    */
+    const markerData = getOverview().then(res => {
+        console.log(res);
+        var dynamicData = [];
+        for (let x in res.ArtworkOrigins){
+            console.log(x);
+            dynamicData.push({
+                "Country of Origin": x,
+                "Artwork Counts in Our Gallery": res.ArtworkOrigins[x]
+            });
+        };
+        console.log(dynamicData);
+        return dynamicData;
+    });
+    
     useEffect(() => {
         getChartData();
     }, []);
 
+    
     const bubbleData = [
         { 'Artwork Country of Origin': 'Italy', 'Number of Artwork in Collections': 892 },
         { 'Artwork Country of Origin': 'United States of America', 'Number of Artwork in Collections': 4917 },
@@ -44,8 +83,9 @@ const ArtMap = () => {
         { 'artwork country of origin': 'Sweden', 'Number of Artwork in Collections': 22 },
         { 'artwork country of origin': 'Switzerland', 'Number of Artwork in Collections': 110 },
       ];
+    console.log(bubbleData);
 
-    const getChartData = () => {
+    const getChartData = () => { 
         fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/world.geo.json')
             .then((res) => res.json())
             .then((data) => {
@@ -54,6 +94,7 @@ const ArtMap = () => {
                     type: 'GeoJSON',
                 });
                 const userData = bubbleData
+                //const userData = markerData //use React-Hook feature useState()
                 const userDv = ds
                     .createView()
                     .source(userData)
@@ -126,9 +167,8 @@ class HomePage extends React.Component {
             msg: "",
             painting:{},
             drawing:{},
-            print:{}
-
-            
+            print:{},
+            artworkOrigins:{} // for WorldMap display origins of artworks and their counts
         }
     
     }
@@ -139,7 +179,8 @@ class HomePage extends React.Component {
             this.setState({painting: res.results[0]})
             this.setState({drawing: res.results[1]})
             this.setState({print: res.results[2]})
-            this.setState({ msg: res.msg})
+            this.setState({msg: res.msg})
+            this.setState({artworkOrigins: res.ArtworkOrigins})
           })
         
 
@@ -201,7 +242,7 @@ class HomePage extends React.Component {
                         <Title level={2}>Collections Around the World</Title>
                     </Row>
                         {/* console.log(<ArtMap />) */}
-                        <ArtMap />
+                        <ArtMap/>
                     </Form>
                 </Divider>
 
