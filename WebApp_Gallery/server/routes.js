@@ -75,7 +75,8 @@ async function galleryOverview(req, res) {
     let queryStr = `
     SELECT classification, count(*) as artworkCounts
     FROM objects
-    GROUP BY classification;`;
+    GROUP BY classification;
+    `;
     const p1 = await connection.query(queryStr).catch(err => {throw err});
 
 
@@ -114,23 +115,6 @@ async function galleryOverview(req, res) {
     const strWelcome = "Welcome to DataOmni's Virtual Gallery (powered by National Gallery of Art)!"
     res.json( {msg: strWelcome, results: p1, ArtworkOrigins: OriginCount} );
     //res.json( {msg: strWelcome, results: p1, nationalityCount: p2, ArtworkOrigin: OriginCount} );
-
-    // a GET request to URL: /home
-    /*
-    connection.query( queryStr, 
-            function (error, results, fields) {
-            // if the query action results in ERORR rising, output the error message to console display
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            // if there is legit query reusults returned, diplay the result
-            } else if (results) {
-                const strWelcome = "Welcome to DataOmni's Virtual Gallery (powered by National Gallery of Art)!"
-                res.json({ msg: strWelcome, results: results })
-            }
-        }
-    );
-    */
 };
 
 // #######################################
@@ -161,7 +145,8 @@ async function artworkInfo(req, res) {
     let queryStr1= `
     SELECT O.title, O.attribution, O.medium, O.dimensions, O.classification, O.series, O.portfolio, O.volume, OI.URL
     FROM objects O JOIN objects_images OI ON O.objectID = OI.objectID
-    WHERE O.objectID = ${objectID};` ;
+    WHERE O.objectID = ${objectID};
+    `;
     const p1 = await connection.query(queryStr1).catch(err => {throw err});
     // 1.1) get the High-Quality Image of this artwork by IIIF API ( https://iiif.io/api/image/2.1/ )
     if (p1[0]){ // check if query reuslt is a truthy value (i.e. if nothing returned, this condition is evaluated to be falsy )
@@ -169,13 +154,13 @@ async function artworkInfo(req, res) {
         p1[0].URL = HDimageURL;
     }
 
-
     // 2) query for part 2 of the result
     let queryStr2= `
     SELECT C.preferredDisplayName,OC.displayOrder, C.displayDate, C.visualBrowserNationality
     FROM objects_constituents OC JOIN constituents C ON OC.constituentID = C.constituentID
     WHERE OC.objectID = ${objectID}
-    ORDER BY displayOrder;` ;
+    ORDER BY displayOrder;
+    `;
     const p2 = await connection.query(queryStr2).catch(err => {throw err});
 
     // 3) query for part 3 of the result
@@ -183,7 +168,8 @@ async function artworkInfo(req, res) {
     SELECT OT.termType, OT.term
     FROM objects_terms OT
     WHERE OT.objectID = ${objectID}
-    ORDER BY termType;` ;
+    ORDER BY termType;
+    `;
     const p3 = await connection.query(queryStr3).catch(err => {throw err});
     
     // 4) return all three parts together as a JSON object
@@ -224,7 +210,8 @@ async function artworkInfo(req, res) {
     let info1= `
     SELECT O.title, O.attribution, O.classification, O.series, O.portfolio, O.volume, OI.URL
     FROM objects O JOIN objects_images OI ON O.objectID = OI.objectID
-    WHERE O.objectID = ${objectID};` ;
+    WHERE O.objectID = ${objectID};
+    `;
     const p1 = await connection.query(info1).catch(err => {throw err});
     var artworkClass = null;
     var portfolio = null;
@@ -260,7 +247,8 @@ async function artworkInfo(req, res) {
     SELECT OT.termType, OT.term
     FROM objects_terms OT
     WHERE OT.objectID = ${objectID}
-    ORDER BY termType;` ;
+    ORDER BY termType;
+    `;
     const p3 = await connection.query(info3).catch(err => {throw err});
     var style = null;
     var school = null;
@@ -298,7 +286,8 @@ async function artworkInfo(req, res) {
             (O.volume LIKE '${volume}') OR
             (C.constituentID = ${artistID}) )
     ORDER BY O.series, O.portfolio, O.volume, O.attribution
-    LIMIT 4;`;
+    LIMIT 4;
+    `;
     const similar1 = await connection.query(queryStr1).catch(err => {throw err});
 
     // 2) Secondary Recommandation: based on same style, school, keyword, theme
@@ -312,7 +301,8 @@ async function artworkInfo(req, res) {
           (OT.termType = 'Keyword' AND OT.term = '${keyword}') OR
           (OT.termType = 'Theme' AND OT.term = '${theme}') )
     ORDER BY termType
-    LIMIT 4;` ;
+    LIMIT 4;
+    `;
     const similar2 = await connection.query(queryStr2).catch(err => {throw err});
     
     // 3) if there is no similar artwork found (based on all the above criteria), we return this message
@@ -381,7 +371,7 @@ async function artworkInfo(req, res) {
 
     //3) fetch query parameter for pagination
     const page = req.query.page ? req.query.page : 1            //defualt show 1st page, also assume user always enters valid page range: [1~n]
-    const limit = req.query.pagesize ? req.query.pagesize : 6  //default 10 rows of query result per page display
+    const limit = req.query.pagesize ? req.query.pagesize : 6  //default 6 rows of query result per page display
     const offset = (page - 1) * limit                           //(page-1) since query offset is 0-based-indexing
 
     //4) initialize a var for hold query string
@@ -496,7 +486,8 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 5 (handler) - keywordSearch
  * ***************************************
- * search relavent artworks by artwork's title OR/AND artist's name
+ * search relavent artworks by artwork's title OR/AND artist's name (in case-insensitive manner)
+ * MySQL LOWER() function: https://www.w3schools.com/sql/func_mysql_lower.asp
  * Note: single space in URL's route parameter needs to be encoded as `%20`
  * ex. URL (defualt) http://localhost:8080/search/byKeyword
  * ex. URL (normal case) http://localhost:8080/search/byKeyword?artworkTitle=American%20Flamingo&artistName=Robert%20Havell
@@ -525,9 +516,10 @@ async function artworkInfo(req, res) {
                 JOIN constituents C
                 JOIN objects_images OI
         ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
-        WHERE (LOWER(O.title) LIKE LOWER('%${artworkTitle}%')) AND
-            (LOWER(O.attribution) LIKE LOWER('%${artistName}%') OR LOWER(O.attributionInverted) LIKE LOWER('%${artistName}%') OR
-            LOWER(C.lastName) LIKE LOWER('%${artistName}%') OR LOWER(C.preferredDisplayName) LIKE LOWER('%${artistName}%') OR
+        WHERE (LOWER(O.title) LIKE LOWER('%${artworkTitle}%')) AND (LOWER(O.attribution) LIKE LOWER('%${artistName}%') OR 
+            LOWER(O.attributionInverted) LIKE LOWER('%${artistName}%') OR
+            LOWER(C.lastName) LIKE LOWER('%${artistName}%') OR 
+            LOWER(C.preferredDisplayName) LIKE LOWER('%${artistName}%') OR
             LOWER(C.forwardDisplayName) LIKE LOWER('%${artistName}%'))
         ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear
         LIMIT ${offset}, ${limit};
@@ -661,41 +653,14 @@ async function artworkInfo(req, res) {
 /** **************************************
  * Route 8 (handler) - analysisOverview
  * ***************************************
- * 1) Showing how many term varieties each big analysis category contains
- *      i.e. School (162), Style(82), Theme(467), Technique(163), Keyword(6320), Place Executed (1000)
- * 2) Showing the top 5 popular term for each category
+ * Showing the top 80 popular terms for each of the 5 analysis category ( i.e. School, Style, Theme, Technique, Keyword, Place Executed)
+ * 
+ *  ex. URL (default) http://localhost:8080/analysis/analysisOverview
  */
  async function analysisOverview(req, res) {
-    
-    // 0) query for Overview of Analysis Category: showing term counts for each category of analysis. i.e. Style, School, Theme, Technique, Keyword, Place Executed,
-    let queryStr0 = `
-    (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects_terms OT
-    WHERE OT.termType = 'Style')
-    UNION
-    (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects_terms OT
-    WHERE OT.termType = 'School')
-    UNION
-    (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects_terms OT
-    WHERE OT.termType = 'Theme')
-    UNION
-    (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects_terms OT
-    WHERE OT.termType = 'Keyword')
-    UNION
-    (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects_terms OT
-    WHERE OT.termType = 'Technique')
-    UNION
-    (SELECT OT.termType, COUNT(DISTINCT OT.term) AS termVarietyCount
-    FROM objects_terms OT
-    WHERE OT.termType = 'Place Executed');
-    
-    `;
-    const resOverview = await connection.query(queryStr0).catch(err => {throw err});
-
+        
+    // ########### Original Implementation (SLOW, takes 6 queries) ############################
+    /*
      // 1) query for part 1 of the result
      let queryStr1= `
      SELECT OT.term AS name, COUNT(*) AS value
@@ -752,7 +717,7 @@ async function artworkInfo(req, res) {
      const resKeyword = await connection.query(queryStr5).catch(err => {throw err});
 
 
-     // 6) query for part 5 of the result
+     // 6) query for part 6 of the result
      let queryStr6 = `
      SELECT OT.term AS name, COUNT(*) AS value
      FROM objects_terms OT
@@ -762,9 +727,67 @@ async function artworkInfo(req, res) {
      LIMIT 80
      `;
      const resPlaceExecuted = await connection.query(queryStr6).catch(err => {throw err});
+    */
+    // ##############################################################################
 
-     // 7) return all three parts together as a JSON object
-     res.json( {Style: resStyle, School: resSchool, Theme: resTheme, Technique: resTechnique, Keyword: resKeyword, PlaceExecuted: resPlaceExecuted } );
+    let queryAll = `
+    -- Style
+    (SELECT OT.term AS name, COUNT(*) AS value
+     FROM objects_terms OT WHERE OT.termType = 'Style'
+     GROUP BY OT.term ORDER BY COUNT(*) DESC
+     LIMIT 80)
+    UNION
+    -- School
+    (SELECT OT.term AS name, COUNT(*) AS value
+        FROM objects_terms OT WHERE OT.termType = 'School'
+        GROUP BY OT.term ORDER BY COUNT(*) DESC
+        LIMIT 80)
+    UNION
+    -- Technique
+    (SELECT OT.term AS name, COUNT(*) AS value
+        FROM objects_terms OT WHERE OT.termType = 'Technique'
+        GROUP BY OT.term ORDER BY COUNT(*) DESC
+        LIMIT 80)
+    UNION
+    -- Theme
+    (SELECT OT.term AS name, COUNT(*) AS value
+        FROM objects_terms OT WHERE OT.termType = 'Theme'
+        GROUP BY OT.term ORDER BY COUNT(*) DESC
+        LIMIT 80)
+    UNION
+    -- Keywords
+    (SELECT OT.term AS name, COUNT(*) AS value
+        FROM objects_terms OT WHERE OT.termType = 'Keyword'
+        GROUP BY OT.term ORDER BY COUNT(*) DESC
+        LIMIT 80)
+    UNION
+    -- Place Executed
+    (SELECT OT.term AS name, COUNT(*) AS value
+        FROM objects_terms OT WHERE OT.termType = 'Place Executed'
+        GROUP BY OT.term ORDER BY COUNT(*) DESC
+        LIMIT 80);
+    `;
+    const resAll = await connection.query(queryAll).catch(err => {throw err});
+    var resStyle = [];
+    var resSchool = [];
+    var resTheme = [];
+    var resTechnique = [];
+    var resKeyword = [];
+    var resPlaceExecuted = [];
+    if (resAll.length == 480) {
+        resStyle = resAll.slice(0,80);
+        resSchool = resAll.slice(80,160);
+        resTheme = resAll.slice(160,240);
+        resTechnique = resAll.slice(240,320);
+        resKeyword = resAll.slice(320,400);
+        resPlaceExecuted = resAll.slice(400,480);
+    };
+    // JavaScript JSON Array slice()
+    // https://stackoverflow.com/questions/3580239/javascript-array-get-range-of-items
+    // https://www.w3schools.com/jsref/jsref_slice_array.asp
+
+    // 7) return all three parts together as a JSON object
+    res.json( {Style: resStyle, School: resSchool, Theme: resTheme, Technique: resTechnique, Keyword: resKeyword, PlaceExecuted: resPlaceExecuted } );
 
 };
 
@@ -889,16 +912,6 @@ async function artworkInfo(req, res) {
         const results = await connection.query(queryStr).catch(err => {throw err});
         res.json( {results: results} );
     }
-
-};
-
-/** **************************************
- * Route 11 (handler) -
- * ***************************************
- * URL query parameter `?beginYear=xxxx&endYear=xxxx&page=x&pagesize=5`
- * 
- */
-async function mapInfo(req, res) {
 
 };
 

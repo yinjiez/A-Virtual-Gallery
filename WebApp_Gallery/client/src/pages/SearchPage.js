@@ -1,6 +1,7 @@
 import React from 'react';
 import {FormInput, FormGroup, Button } from "shards-react";
 import Masonry from "react-responsive-masonry"
+// https://www.npmjs.com/package/react-responsive-masonry
 import {
     Table,
     Row,
@@ -341,6 +342,8 @@ class SearchPage extends React.Component {
               <Button theme="dark" style={{ marginTop: '2vh', marginBotton: '2vh' }} onClick={this.updateFilterResults} block>Search</Button>
             </Menu>
           </Sider>
+          
+          {/* ################### Display Artworks Search Results ############################################### */}
           <Content style={{ padding: '0 80px'}}>
             <Masonry columnsCount={3}>
               {this.state.searchResults.map(item => <Card hoverable = {true}
@@ -354,9 +357,10 @@ class SearchPage extends React.Component {
             onClick={() => [this.state.mode === 's'? [this.loadMore(), this.updateStyleResults()]: (this.state.mode ==='k'? [this.loadMore(), this.updateSearchResults()] :  [this.loadMore(), this.updateFilterResults()])]} type="button" className="load-more">Load more</button></Row>
           </Content>
         </Layout>
+        
         </Divider>
 
-        {/* Naughty search */}
+        {/* ####################### Naughty search ############################################################## */}
         <Divider>
         <Row style={{ padding: '0 24px', minHeight: 30 }}></Row>
         <Row justify="space-around" align="middle"> 
