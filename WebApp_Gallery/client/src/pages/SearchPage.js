@@ -370,7 +370,7 @@ class SearchPage extends React.Component {
             <Row>
               <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                 <label>Enter Your Height (in centimeters):</label>
-                <FormInput placeholder="height (eg. 180)" onChange={this.handleHeightChange} />
+                <FormInput placeholder="height in centimeters (eg. 180)" onChange={this.handleHeightChange} />
               </FormGroup></Col>
               <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                 <Button theme="dark" style={{ marginTop: '3vh' }} onClick={this.updateHeightResults}>Find Artwork As Tall As You</Button>
