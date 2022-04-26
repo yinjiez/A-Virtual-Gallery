@@ -282,7 +282,7 @@ async function artworkInfo(req, res) {
            O.objectID = OI.objectID
     WHERE (O.objectID <> ${objectID} ) AND (O.classification = '${artworkClass}') AND
           ( (O.portfolio LIKE '${portfolio}') OR
-            (O.series LIKE '${series}}') OR
+            (O.series LIKE '${series}') OR
             (O.volume LIKE '${volume}') OR
             (C.constituentID = ${artistID}) )
     ORDER BY O.series, O.portfolio, O.volume, O.attribution
@@ -516,11 +516,12 @@ async function artworkInfo(req, res) {
                 JOIN constituents C
                 JOIN objects_images OI
         ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND O.objectID =OI.objectID
-        WHERE (LOWER(O.title) LIKE LOWER('%${artworkTitle}%')) AND (LOWER(O.attribution) LIKE LOWER('%${artistName}%') OR 
+        WHERE (LOWER(O.title) LIKE LOWER('%${artworkTitle}%')) AND ( 
+            LOWER(O.attribution) LIKE LOWER('%${artistName}%') OR 
             LOWER(O.attributionInverted) LIKE LOWER('%${artistName}%') OR
             LOWER(C.lastName) LIKE LOWER('%${artistName}%') OR 
-            LOWER(C.preferredDisplayName) LIKE LOWER('%${artistName}%') OR
-            LOWER(C.forwardDisplayName) LIKE LOWER('%${artistName}%'))
+            LOWER(C.forwardDisplayName) LIKE LOWER('%${artistName}%') OR
+            LOWER(C.preferredDisplayName) LIKE LOWER('%${artistName}%') )
         ORDER BY O.title, O.attribution, C.preferredDisplayName, O.endYear
         LIMIT ${offset}, ${limit};
         `;
