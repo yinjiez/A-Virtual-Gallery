@@ -347,7 +347,7 @@ class SearchPage extends React.Component {
           <Content style={{ padding: '0 80px'}}>
             <Masonry columnsCount={3}>
               {this.state.searchResults.map(item => <Card hoverable = {true}
-              style={{ width: 220, marginTop: '2vh',whiteSpace: 'normal' }}
+              style={{ width: 260, marginTop: '2vh',whiteSpace: 'normal' }}
               cover={<img src={item.thumbURL.replace('!200,200', '!600,600')} maxHeight={300}></img>} onClick={() => this.goToArtwork(item.objectID)}>
                   <Meta title={<a>{item.title}</a>}></Meta>
                   <Meta description={item.attribution}></Meta>

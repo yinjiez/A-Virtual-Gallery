@@ -167,15 +167,15 @@ class HomePage extends React.Component {
                             width: '100%'
                         }}>
                             <Typography.Title level={1} style={{
-                                color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: '35%', left: "25%",
+                                color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: '35%', left: "30%",
                                 wordBreak: 'normal', whiteSpace: 'normal', overflowWrap: 'break-word'
                             }}>
                                 {this.state.msg.substring(0, 22)}</Typography.Title>
-                            <Typography.Title level={1} style={{ color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: 180, left: "25%" }}>
+                            <Typography.Title level={1} style={{ color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: 180, left: "30%" }}>
                                 {this.state.msg.substring(22, 38)}</Typography.Title>
-                            <Typography.Title level={1} style={{ color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: 230, left: "25%" }}>
+                            <Typography.Title level={1} style={{ color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: 230, left: "30%" }}>
                                 <Button ghost><Link to={`/search`}>Explore</Link></Button></Typography.Title>
-                            <Typography.Title level={3} style={{ color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: 310, left: "25%" }}>
+                            <Typography.Title level={3} style={{ color: 'white', width: 600, textAlign: 'center', position: 'absolute', top: 310, left: "30%" }}>
                                 - {this.state.msg.substring(39, 73)} -</Typography.Title>
                         </div></div>
 
