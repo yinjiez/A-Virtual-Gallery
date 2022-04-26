@@ -28,11 +28,6 @@ class MenuBar extends React.Component {
                 Analysis
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink active  href="/login" >
-                Login
-              </NavLink>
-            </NavItem>
           </Nav>
       </Navbar>
         )
