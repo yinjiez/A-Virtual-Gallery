@@ -1,6 +1,6 @@
 const config = require('./config.json')
 const mysql = require('mysql');
-const util = require("util"); // NEW FEATURE!!
+const util = require("util"); // NEW FEATURE!!  https://www.npmjs.com/package/util
 const e = require('express');
 const { deepStrictEqual } = require('assert');
 

@@ -93,10 +93,13 @@ WHERE TABLE_NAME = 'objects_terms';
 -- PK (termID, objectID) => BTREE(termID), BTREE(objectID)
 -- FK (objectID) ref objects(objectID) => BTREE(objectID)
 
+-- SELECT * FROM objects_terms LIMIT 20;
+
 -- Additional Indexing =======================================
 -- termType, term, visualBrowserTheme
 CREATE INDEX idx_termType_term ON objects_terms (termType, term);    -- CREATED
 CREATE INDEX idx_browserTheme ON objects_terms (visualBrowserTheme); -- CREATED
+
 
 
 -- ##################################################################################
@@ -285,12 +288,12 @@ SELECT DISTINCT O.title, O.attribution, O.objectID, OI.thumbURL, OT.termType, O.
     ORDER BY termType
     LIMIT 4;
 
-
 /* -----------------------------------------------------------*/
 /* --------- route handler #4 -- filterSearch()  -----------*/
 /* -----------------------------------------------------------*/
 
 -- Nationality + Style
+EXPLAIN ANALYZE
 SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
             JOIN constituents C
@@ -298,44 +301,62 @@ SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
             JOIN objects_terms OT
             ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
                 O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%${nationality}%')) AND
-                (LOWER(OT.term) LIKE LOWER('%${style}%') AND OT.termType = 'Style') AND
-                (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                (LOWER(O.classification) LIKE LOWER('%${classification}%'))
+        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%French%')) AND
+                (LOWER(OT.term) LIKE LOWER('%Impressionist%') AND OT.termType = 'Style') AND
+                (O.beginYear >= 1800 AND O.endYear <= 1900) AND
+                (LOWER(O.classification) LIKE LOWER('%painting%'))
         ORDER BY O.endYear, O.title, O.attribution, C.lastName
-        LIMIT ${offset}, ${limit};
-
+        LIMIT 0, 6;
+-- WITHOUT INDEX ---------------------------------
+EXPLAIN ANALYZE
+SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
+        FROM objects O IGNORE INDEX (idx_beginEndYr, idx_endYear, idx_classification)
+            JOIN objects_constituents OC
+            JOIN constituents C IGNORE INDEX (idx_nationality)
+            JOIN objects_images OI
+            JOIN objects_terms OT IGNORE INDEX (idx_termType_term)
+            ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
+                O.objectID =OI.objectID AND O.objectID =OT.objectID
+        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%French%')) AND
+                (LOWER(OT.term) LIKE LOWER('%Impressionist%') AND OT.termType = 'Style') AND
+                (O.beginYear >= 1800 AND O.endYear <= 1900) AND
+                (LOWER(O.classification) LIKE LOWER('%painting%'))
+        ORDER BY O.endYear, O.title, O.attribution, C.lastName
+        LIMIT 0, 6;
 
 -- Style
+EXPLAIN ANALYZE
 SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_images OI JOIN objects_terms OT
                     ON O.objectID =OI.objectID AND O.objectID =OT.objectID
-        WHERE (LOWER(OT.term) LIKE LOWER('%${style}%') AND OT.termType = 'Style') AND
+        WHERE (LOWER(OT.term) LIKE LOWER('%Impressionist%') AND OT.termType = 'Style') AND
                         (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                        (LOWER(O.classification) LIKE LOWER('%${classification}%'))
+                        (LOWER(O.classification) LIKE LOWER('%painting%'))
         ORDER BY O.endYear, O.title, O.attribution
-        LIMIT ${offset}, ${limit};
+        LIMIT 0, 6;
 
 -- Nationality
+EXPLAIN ANALYZE
 SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_constituents OC
                     JOIN constituents C
                     JOIN objects_images OI
                     ON O.objectID = OC.objectID AND OC.constituentID = C.constituentID AND
                         O.objectID =OI.objectID
-        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%${nationality}%')) AND
-                        (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                        (LOWER(O.classification) LIKE LOWER('%${classification}%'))
+        WHERE (LOWER(C.visualBrowserNationality) LIKE LOWER('%French%')) AND
+                        (O.beginYear >= 1800 AND O.endYear <= 1900) AND
+                        (LOWER(O.classification) LIKE LOWER('%painting%'))
         ORDER BY O.endYear, O.title, O.attribution, C.lastName
-        LIMIT ${offset}, ${limit};
+        LIMIT 0, 6;
 
 -- basic
+EXPLAIN ANALYZE
 SELECT DISTINCT O.title, O.attribution, O.endYear, O.objectID, OI.thumbURL
         FROM objects O JOIN objects_images OI ON O.objectID =OI.objectID
-        WHERE (O.beginYear >= ${beginYear} AND O.endYear <= ${endYear}) AND
-                (LOWER(O.classification) LIKE LOWER('%${classification}%'))
+        WHERE (O.beginYear >= 1800 AND O.endYear <= 1900) AND
+                (LOWER(O.classification) LIKE LOWER('%painting%'))
         ORDER BY O.endYear, O.title, O.attribution
-        LIMIT ${offset}, ${limit};
+        LIMIT 0, 6;
 
 /* -----------------------------------------------------------*/
 /* --------- route handler #5 -- keywordSearch()  -----------*/
@@ -548,5 +569,4 @@ SELECT O.title, O.attribution, O.classification, O.objectID, OI.thumbURL, O.endY
         WHERE OT.visualBrowserTheme = 'portrait' AND ( O.endYear <= ${endYear} AND O.endYear >= ${beginYear}) AND classification = 'painting'
         ORDER BY O.endYear
         LIMIT ${offset}, ${limit};
-
 /* -----------------------------------------------------------*/
