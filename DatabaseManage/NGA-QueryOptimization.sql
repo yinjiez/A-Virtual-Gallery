@@ -18,6 +18,7 @@ SHOW TABLES FROM DataOmni_NGA;
 -- ##################################################################################
 /* Table 1) objects ############################################################## */
 -- ##################################################################################
+SELECT COUNT(*) FROM objects;
 DESCRIBE objects;
 select TABLE_SCHEMA, TABLE_NAME, INDEX_SCHEMA, INDEX_TYPE, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, CARDINALITY
 FROM information_schema.STATISTICS
@@ -42,6 +43,7 @@ WHERE objectID = 32572;
 -- ##################################################################################
 /* Table 2) constituents ######################################################### */
 -- ##################################################################################
+SELECT COUNT(*) FROM constituents;
 DESCRIBE constituents;
 select TABLE_SCHEMA, TABLE_NAME, INDEX_SCHEMA, INDEX_TYPE, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, CARDINALITY
 FROM information_schema.STATISTICS
@@ -64,6 +66,7 @@ WHERE constituentID = 122;
 -- ##################################################################################
 /* Table 3) objects_constituents ################################################# */
 -- ##################################################################################
+SELECT COUNT(*) FROM objects_constituents;
 DESCRIBE objects_constituents;
 select TABLE_SCHEMA, TABLE_NAME, INDEX_SCHEMA, INDEX_TYPE, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, CARDINALITY
 FROM information_schema.STATISTICS
@@ -75,6 +78,7 @@ WHERE TABLE_NAME = 'objects_constituents';
 -- ##################################################################################
 /* Table 4) objects_images ####################################################### */
 -- ##################################################################################
+SELECT COUNT(*) FROM objects_images;
 DESCRIBE objects_images;
 select TABLE_SCHEMA, TABLE_NAME, INDEX_SCHEMA, INDEX_TYPE, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, CARDINALITY
 FROM information_schema.STATISTICS
@@ -86,6 +90,7 @@ WHERE TABLE_NAME = 'objects_images';
 -- ##################################################################################
 /* Table 5) objects_terms ######################################################## */
 -- ##################################################################################
+SELECT COUNT(*) FROM objects_terms;
 DESCRIBE objects_terms;
 select TABLE_SCHEMA, TABLE_NAME, INDEX_SCHEMA, INDEX_TYPE, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, CARDINALITY
 FROM information_schema.STATISTICS
@@ -101,10 +106,10 @@ CREATE INDEX idx_termType_term ON objects_terms (termType, term);    -- CREATED
 CREATE INDEX idx_browserTheme ON objects_terms (visualBrowserTheme); -- CREATED
 
 
-
 -- ##################################################################################
 /* Table 6) objects_dimensions #################################################### */
 -- ##################################################################################
+SELECT COUNT(*) FROM objects_dimensions;
 DESCRIBE objects_dimensions;
 select TABLE_SCHEMA, TABLE_NAME, INDEX_SCHEMA, INDEX_TYPE, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, CARDINALITY
 FROM information_schema.STATISTICS
