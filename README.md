@@ -2,13 +2,13 @@
 
 To build our webapp locally:
 
-In a terminal, cd into the server folder under "1_Application_code", then run npm install:
+In a terminal, cd into the server folder under "WebApp_Gallery", then run npm install:
 
 cd server
 
 npm install
 
-In another terminal window, cd into the client folder under "1_Application_code", then run npm install:
+In another terminal window, cd into the client folder under "WebApp_Gallery", then run npm install:
 
 cd client
 
