@@ -158,7 +158,7 @@ class HomePage extends React.Component {
             <div>
                 <MenuBar />
 
-                <Slider autoplay={3000} infinite={true}>
+                <Slider autoplay={4000} infinite={true}>
                     <div>
                         <div style={{
                             backgroundImage: "linear-gradient(to bottom, rgba(256, 256, 256, 0.15), rgba(0, 0, 0, 0.15)),url('https://api.nga.gov/iiif/c66840d0-00b2-47d1-a4de-d157ad5712c2/full/!1200,1200/0/default.jpg')",
