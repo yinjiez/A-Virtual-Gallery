@@ -32,7 +32,7 @@ User can find artworks with the same height as themselves, or were created withi
 
 ![4](https://github.com/lingzix/Demo_gif/blob/main/Naughty_search.gif)
 
-### 5. Artwork Detail
+### 5. Artwork Detail & Similar Artworks
 &nbsp;
 Detail is dynamically fetched from our database instance. A section of color palette is automatically generated based on each artwork for aesthetic inspirations. 4 similar artworks are recommended to users at the bottom. The algorithm utilizes the facts of shared artists/exhibition/style/theme/etc. Users can continue exploring similar artworks by a simple click.
 
